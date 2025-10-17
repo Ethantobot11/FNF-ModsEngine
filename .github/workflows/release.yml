@@ -12,9 +12,19 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: Windows x64 / x32
+          - name: Windows
             os: windows-2022
-            buildArgs: "windows -final -D32bits -D64bits"
+            buildArgs: "windows -final"
+            artifactName: Windows
+            artifactPath: export/release/windows/bin/*
+          - name: Windows x64
+            os: windows-2022
+            buildArgs: "windows -final DHCPP_X64 -D64bits"
+            artifactName: Windows x64
+            artifactPath: export/release/windows/**/bin/*
+          - name: Windows x32
+            os: windows-2022
+            buildArgs: "windows -final -X32 DHCPP_X32 -D32bits"
             artifactName: Windows x64
             artifactPath: export/release/windows/**/bin/*
           - name: Linux
@@ -56,6 +66,7 @@ jobs:
       - name: Zip Artifacts
         run: |
           cd export/release
+           zip -r Windows.zip Windows
            zip -r Windows x64.zip Windows x64
            zip -r Windows x32.zip Windows x32
            zip -r Linux.zip Linux
@@ -68,6 +79,7 @@ jobs:
           tag_name: "6.9.9"
           prerelease: false
           files: |
+            Windows x64.zip
             Windows x64.zip
             Windows x32.zip
             Linux.zip

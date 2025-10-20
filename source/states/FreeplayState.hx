@@ -101,7 +101,7 @@ class FreeplayState extends MusicBeatState
 			var songText:Alphabet = new Alphabet(90, 320, songs[i].songName, true);
 			songText.isMenuItem = true;
 
-			if(false)
+			if(true)
 			{
 				songText.isMenuItemCentered = true;
 			} else {
@@ -128,9 +128,9 @@ class FreeplayState extends MusicBeatState
 			iconArray.push(icon);
 			add(icon);
 
-			// songText.x += 40;
+			//songText.x += 40;
 			// DONT PUT X IN THE FIRST PARAMETER OF new ALPHABET() !!
-			// songText.screenCenter(X);
+			//songText.screenCenter(X);
 		}
 		WeekData.setDirectoryFromWeek();
 

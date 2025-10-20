@@ -167,36 +167,45 @@ class Alphabet extends FlxSpriteGroup
 
 	override function update(elapsed:Float)
 	{
+		/*
 		if (isMenuItem)
-		{
-			var lerpVal:Float = Math.exp(-elapsed * 9.6);
-			if(changeX)
-				x = FlxMath.lerp((targetY * distancePerItem.x) + startPosition.x, x, lerpVal);
-			if(changeY)
-				y = FlxMath.lerp((targetY * 1.3 * distancePerItem.y) + startPosition.y, y, lerpVal);
-		}
-		super.update(elapsed);
-	}
-
-	public function snapToPosition()
-	{
-		/*if (isMenuItem)
 		{
 			var lerpVal:Float = FlxMath.bound(elapsed * 9.6, 0, 1);
 			if(changeX)
 				x = FlxMath.lerp(x, (targetY * distancePerItem.x) + startPosition.x, lerpVal);
 			if(changeY)
 				y = FlxMath.lerp(y, (targetY * 1.3 * distancePerItem.y) + startPosition.y, lerpVal);
-		}*/
+		}
 		
+		if (isMenuItemCentered)
+		{
+			var scaledY = FlxMath.remapToRange(targetY, 0, 1, 0, 1.3);
+			var yTarget = (scaledY * yMult) + (FlxG.height * 0.48) + yAdd;
+			
+			if (Math.abs(y - yTarget) > 0.1)
+			{
+				y = FlxMath.lerp(y, yTarget, 0.1);
+			} else {
+				y = yTarget;
+			}
+			
+			if(forceX != Math.NEGATIVE_INFINITY)
+			{
+				screenCenter(X);
+			} else {
+				screenCenter(X);
+			}
+		}
+		*/
+
 		if (isMenuItem)
 		{
-			// var lerpVal:Float = CoolUtil.boundTo(elapsed * 9.6, 0, 1);
-			var lerpVal:Float = Math.exp(-elapsed * 9.6);
-
+			var scaledY = FlxMath.remapToRange(targetY, 0, 1, 0, 1.3);
+			var lerpVal:Float = boundTo(elapsed * 9.6, 0, 1);
+			
 			y = FlxMath.lerp(y, (scaledY * yMult) + (FlxG.height * 0.48) + yAdd, lerpVal);
-
-			if (isMenuItemCenter)
+			
+			if (isMenuItemCentered)
 			{
 				screenCenter(X);
 			} else {
@@ -207,6 +216,19 @@ class Alphabet extends FlxSpriteGroup
 					x = FlxMath.lerp(x, (targetY * 20) + 90 + xAdd, lerpVal);
 				}
 			}
+		}
+		
+		super.update(elapsed);
+	}
+
+	public function snapToPosition()
+	{
+		if (isMenuItem)
+		{
+			if(changeX)
+				x = (targetY * distancePerItem.x) + startPosition.x;
+			if(changeY)
+				y = (targetY * 1.3 * distancePerItem.y) + startPosition.y;
 		}
 	}
 	
@@ -505,11 +527,4 @@ class AlphaCharacter extends FlxSprite
 		super.updateHitbox();
 		updateLetterOffset();
 	}
-}
-
-function boundTo(value:Float, min:Float, max:Float):Float {
-	var newValue:Float = value;
-	if(newValue < min) newValue = min;
-	else if(newValue > max) newValue = max;
-	return newValue;
 }

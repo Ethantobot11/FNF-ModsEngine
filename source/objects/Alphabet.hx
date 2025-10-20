@@ -33,7 +33,7 @@ class Alphabet extends FlxSpriteGroup
 	public var distancePerItem:FlxPoint = new FlxPoint(20, 120);
 	public var startPosition:FlxPoint = new FlxPoint(0, 0); //for the calculations
 
-	public function new(x:Float, y:Float, text:String = "", ?bold:Bool = true)
+	public function new(x:Float, y:Float, text:String = "", ?bold:Bool = true, typed:Bool = false, ?typingSpeed:Float = 0.05, ?textSize:Float = 1)
 	{
 		super(x, y);
 
@@ -180,15 +180,36 @@ class Alphabet extends FlxSpriteGroup
 
 	public function snapToPosition()
 	{
+		/*if (isMenuItem)
+		{
+			var lerpVal:Float = FlxMath.bound(elapsed * 9.6, 0, 1);
+			if(changeX)
+				x = FlxMath.lerp(x, (targetY * distancePerItem.x) + startPosition.x, lerpVal);
+			if(changeY)
+				y = FlxMath.lerp(y, (targetY * 1.3 * distancePerItem.y) + startPosition.y, lerpVal);
+		}*/
+		
 		if (isMenuItem)
 		{
-			if(changeX)
-				x = (targetY * distancePerItem.x) + startPosition.x;
-			if(changeY)
-				y = (targetY * 1.3 * distancePerItem.y) + startPosition.y;
+			// var lerpVal:Float = CoolUtil.boundTo(elapsed * 9.6, 0, 1);
+			var lerpVal:Float = Math.exp(-elapsed * 9.6);
+
+			y = FlxMath.lerp(y, (scaledY * yMult) + (FlxG.height * 0.48) + yAdd, lerpVal);
+
+			if (isMenuItemCenter)
+			{
+				screenCenter(X);
+			} else {
+				if(forceX != Math.NEGATIVE_INFINITY)
+				{
+					x = forceX;
+				} else {
+					x = FlxMath.lerp(x, (targetY * 20) + 90 + xAdd, lerpVal);
+				}
+			}
 		}
 	}
-
+	
 	private static var Y_PER_ROW:Float = 85;
 
 	private function createLetters(newText:String)
@@ -484,4 +505,11 @@ class AlphaCharacter extends FlxSprite
 		super.updateHitbox();
 		updateLetterOffset();
 	}
+}
+
+function boundTo(value:Float, min:Float, max:Float):Float {
+	var newValue:Float = value;
+	if(newValue < min) newValue = min;
+	else if(newValue > max) newValue = max;
+	return newValue;
 }

@@ -50,19 +50,19 @@ jobs:
             cache-build-windows
 
       - name: Restore existing build cache for faster compilation Windows x64
-        if: inputs.name == 'Windows x64'
+        if: inputs.name == 'Windows_x64'
         uses: actions/cache@v4
         with:
           # not caching the bin folder to prevent asset duplication and stuff like that
           key: cache-build-windows-x64
           path: |
             .haxelib/
-            export/release/windows/64bits/haxe/
-            export/release/windows/64bits/obj/
+            export/release/windows//haxe/
+            export/release/windows/obj/
           restore-keys: |
             cache-build-windows-x64
 
-      - name: Restore existing build cache for faster compilation
+      - name: Restore existing build cache for faster compilation Windows x32
         if: inputs.name == 'Windows_x32'
         uses: actions/cache@v4
         with:
@@ -75,8 +75,8 @@ jobs:
           restore-keys: |
             cache-build-windows-x32
       
-      - name: Restore existing build cache for faster compilation
-        if: inputs.name == 'Windows_x64'
+      - name: Restore existing build cache for faster compilation Windows
+        if: inputs.name == 'Windows'
         uses: actions/cache@v4
         with:
           # not caching the bin folder to prevent asset duplication and stuff like that
@@ -176,7 +176,7 @@ jobs:
             }
 
       - name: Clearing already existing cache Windows x64
-        if: inputs.name == 'Windows x64'
+        if: inputs.name == 'Windows_x64'
         uses: actions/github-script@v6
         with:
           script: |
@@ -197,7 +197,7 @@ jobs:
             }
       
       - name: Clearing already existing cache Windows x32
-        if: inputs.name == 'Windows x32'
+        if: inputs.name == 'Windows_x32'
         uses: actions/github-script@v6
         with:
           script: |
@@ -341,15 +341,15 @@ jobs:
             cache-build-windows
 
       - name: Uploading new cache Windows x64
-        if: inputs.name == 'Windows x64'
+        if: inputs.name == 'Windows_x64'
         uses: actions/cache@v4
         with:
           # caching again since for some reason it doesnt work with the first post cache shit
           key: cache-build-windows-x64
           path: |
             .haxelib/
-            export/release/windows/64bits/haxe/
-            export/release/windows/64bits/obj/
+            export/release/windows/haxe/
+            export/release/windows/obj/
           restore-keys: |
             cache-build-windows-x64
 
@@ -361,8 +361,8 @@ jobs:
           key: cache-build-windows-x32
           path: |
             .haxelib/
-            export/release/windows/32bits/haxe/
-            export/release/windows/32bits/obj/
+            export/release/windows/haxe/
+            export/release/windows/obj/
           restore-keys: |
             cache-build-windows-x32
        

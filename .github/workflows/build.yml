@@ -70,8 +70,8 @@ jobs:
           key: cache-build-windows-x32
           path: |
             .haxelib/
-            export/release/windows/32bits/haxe/
-            export/release/windows/32bits/obj/
+            export/release/windows/haxe/
+            export/release/windows/obj/
           restore-keys: |
             cache-build-windows-x32
       

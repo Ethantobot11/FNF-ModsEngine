@@ -28,7 +28,7 @@ class Alphabet extends FlxSpriteGroup
 	public var distancePerItem:FlxPoint = new FlxPoint(20, 120);
 	public var startPosition:FlxPoint = new FlxPoint(0, 0); //for the calculations
 
-	public function new(x:Float, y:Float, text:String = "", ?bold:Bool = true, typed:Bool = false, ?typingSpeed:Float = 0.05, ?textSize:Float = 1)
+	public function new(x:Float, y:Float, text:String = "", ?bold:Bool = true)
 	{
 		super(x, y);
 
@@ -162,44 +162,29 @@ class Alphabet extends FlxSpriteGroup
 
 	override function update(elapsed:Float)
 	{
-		
 		if (isMenuItem)
 		{
-			var lerpVal:Float = FlxMath.bound(elapsed * 9.6, 0, 1);
+			var lerpVal:Float = Math.exp(-elapsed * 9.6);
 			if(changeX)
-				x = FlxMath.lerp(x, (targetY * distancePerItem.x) + startPosition.x, lerpVal);
+				x = FlxMath.lerp((targetY * distancePerItem.x) + startPosition.x, x, lerpVal);
 			if(changeY)
-				y = FlxMath.lerp(y, (targetY * 1.3 * distancePerItem.y) + startPosition.y, lerpVal);
+				y = FlxMath.lerp((targetY * 1.3 * distancePerItem.y) + startPosition.y, y, lerpVal);
 		}
-		
-		if (isMenuItemCentered)
-		{
-			var scaledY = FlxMath.remapToRange(targetY, 0, 1, 0, 1.3);
-			var yTarget = (scaledY * yMult) + (FlxG.height * 0.48) + yAdd;
-			
-			if (Math.abs(y - yTarget) > 0.1)
-			{
-				y = FlxMath.lerp(y, yTarget, 0.1);
-			} else {
-				y = yTarget;
-			}
-		}
+		super.update(elapsed);
 	}
-		
-	super.update(elapsed);
-}
 
 	public function snapToPosition()
 	{
 		if (isMenuItem)
 		{
+
 			if(changeX)
 				x = (targetY * distancePerItem.x) + startPosition.x;
 			if(changeY)
 				y = (targetY * 1.3 * distancePerItem.y) + startPosition.y;
 		}
 	}
-	
+
 	private static var Y_PER_ROW:Float = 85;
 
 	private function createLetters(newText:String)

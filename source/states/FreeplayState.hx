@@ -98,10 +98,13 @@ class FreeplayState extends MusicBeatState
 
 		for (i in 0...songs.length)
 		{
-			var songText:Alphabet = new Alphabet(90, 320, songs[i].songName, true);
+			// default songText
+			// var songText:Alphabet = new Alphabet(90, 320, songs[i].songName, true);
+			
+			var songText:Alphabet = new Alphabet(0, 320, songs[i].songName, false);
 			songText.isMenuItem = true;
-
-			if(true)
+			
+			if(false)
 			{
 				songText.isMenuItemCentered = true;
 			} else {
@@ -113,27 +116,30 @@ class FreeplayState extends MusicBeatState
 			songText.targetY = i;
 			grpSongs.add(songText);
 
+			// songText.x = FlxG.width / 2 - (songText.width + 150) / 2;
 			songText.scaleX = Math.min(1, 980 / songText.width);
-			songText.snapToPosition();
+			// songText.snapToPosition();
 
 			Mods.currentModDirectory = songs[i].folder;
 			var icon:HealthIcon = new HealthIcon(songs[i].songCharacter);
 			icon.sprTracker = songText;
-			
+
 			// too laggy with a lot of songs, so i had to recode the logic for it
-			songText.visible = songText.active = songText.isMenuItem = false;
+			
+			// songText.visible = songText.active = songText.isMenuItem = false;
+			songText.visible = songText.active = false;
 			icon.visible = icon.active = false;
 
 			// using a FlxGroup is too much fuss!
 			iconArray.push(icon);
 			add(icon);
 
-			//songText.x += 40;
+			// songText.x += 40;
 			// DONT PUT X IN THE FIRST PARAMETER OF new ALPHABET() !!
-			//songText.screenCenter(X);
+			// songText.screenCenter(X);
 		}
 		WeekData.setDirectoryFromWeek();
-
+		
 		scoreText = new FlxText(FlxG.width * 0.7, 5, 0, "", 32);
 		scoreText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
 

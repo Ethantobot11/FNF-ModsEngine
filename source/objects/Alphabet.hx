@@ -20,11 +20,6 @@ class Alphabet extends FlxSpriteGroup
 	public var changeX:Bool = true;
 	public var changeY:Bool = true;
 
-	public var forceX:Float = Math.NEGATIVE_INFINITY;
-	public var yMult:Float = 120;
-	public var xAdd:Float = 0;
-	public var yAdd:Float = 0;
-
 	public var alignment(default, set):Alignment = LEFT;
 	public var scaleX(default, set):Float = 1;
 	public var scaleY(default, set):Float = 1;
@@ -167,7 +162,7 @@ class Alphabet extends FlxSpriteGroup
 
 	override function update(elapsed:Float)
 	{
-		/*
+		
 		if (isMenuItem)
 		{
 			var lerpVal:Float = FlxMath.bound(elapsed * 9.6, 0, 1);
@@ -188,38 +183,11 @@ class Alphabet extends FlxSpriteGroup
 			} else {
 				y = yTarget;
 			}
-			
-			if(forceX != Math.NEGATIVE_INFINITY)
-			{
-				screenCenter(X);
-			} else {
-				screenCenter(X);
-			}
 		}
-		*/
-
-		if (isMenuItem)
-		{
-			var scaledY = FlxMath.remapToRange(targetY, 0, 1, 0, 1.3);
-			var lerpVal:Float = boundTo(elapsed * 9.6, 0, 1);
-			
-			y = FlxMath.lerp(y, (scaledY * yMult) + (FlxG.height * 0.48) + yAdd, lerpVal);
-			
-			if (isMenuItemCentered)
-			{
-				screenCenter(X);
-			} else {
-				if(forceX != Math.NEGATIVE_INFINITY)
-				{
-					x = forceX;
-				} else {
-					x = FlxMath.lerp(x, (targetY * 20) + 90 + xAdd, lerpVal);
-				}
-			}
-		}
-		
-		super.update(elapsed);
 	}
+		
+	super.update(elapsed);
+}
 
 	public function snapToPosition()
 	{

@@ -19,8 +19,13 @@ jobs:
             artifactPath: export/release/windows/bin/*
           - name: Windows_x86_64
             os: windows-2022
-            buildArgs: "windows -final -X86_64 HXCPP_X86_64"
-            artifactName: Windows_x86_64
+            buildArgs: "windows -final -X86_64 -D HXCPP_X86_64"
+            artifactName: Windows
+            artifactPath: export/release/windows/bin/*
+          - name: Windows_arm64
+            os: windows-2022
+            buildArgs: "windows -final -ARM64 -D HXCPP_ARM64"
+            artifactName: Windows_arm64
             artifactPath: export/release/windows/bin/*
           - name: Windows_x64
             os: windows-2022

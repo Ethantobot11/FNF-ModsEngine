@@ -27,7 +27,7 @@ class MainMenuState extends MusicBeatState
 		'awards',
 		#end
 		
-		'credits',
+		'gallery',
 		'credits',
 		
 		'options'

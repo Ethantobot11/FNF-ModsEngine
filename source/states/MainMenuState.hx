@@ -28,10 +28,7 @@ class MainMenuState extends MusicBeatState
 		#end
 		
 		'credits',
-		
-		#if !switch
-		'donate',
-		#end
+		'credits',
 		
 		'options'
 	];

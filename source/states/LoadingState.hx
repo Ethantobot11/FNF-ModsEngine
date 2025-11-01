@@ -535,8 +535,10 @@ class LoadingState extends MusicBeatState
 					}
 				}
 				
-		if (Reflect.hasField(stageData, "objects"))
-        {
+		       if (stageData != null)
+{
+    if (Reflect.hasField(stageData, "objects"))
+    {
         var stageObjects:Array<Dynamic> = cast Reflect.field(stageData, "objects");
         for (sprite in stageObjects)
         {
@@ -546,11 +548,11 @@ class LoadingState extends MusicBeatState
                     !imgs.contains(sprite.image))
                 {
                     imgs.push(sprite.image);
-			    }
+                }
+            }
+            prepare(imgs, snds, mscs);
 			}
-			prepare(imgs, snds, mscs);
-			}
-		    
+
 			songsToPrepare.push('$folder/Inst');
 
 			var player1:String = song.player1;
@@ -600,6 +602,8 @@ class LoadingState extends MusicBeatState
 		.onError((err:Dynamic) -> {
 			trace('ERROR! while preparing song: $err');
 		});
+      }
+    }
 
 	public static function clearInvalids()
 	{

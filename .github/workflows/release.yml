@@ -16,22 +16,22 @@ jobs:
         include:
           - name: Windows x64
             os: windows-2022
-            buildArgs: "windows -final -X64 -D HXCPP_X64 -D 64bits"
+            buildArgs: "windows -final -X64 -D HXCPP_X64 -D 64bits -D officialBuild"
             artifactName: Windows x64
             artifactPath: export/release/windows/64bits/bin/*
           - name: Windows x32
             os: windows-2022
-            buildArgs: "windows -final -X32 -D HXCPP_X32 -D 32bits"
+            buildArgs: "windows -final -X32 -D HXCPP_X32 -D 32bits -D officialBuild"
             artifactName: Windows x32
             artifactPath: export/release/windows/32bits/bin/*
           - name: Linux
             os: ubuntu-22.04
-            buildArgs: "linux -final"
+            buildArgs: "linux -final -D officialBuild"
             artifactName: Linux
             artifactPath: export/release/linux/bin/*
           - name: MacOS
             os: macos-15
-            buildArgs: "mac -final"
+            buildArgs: "mac -final -D officialBuild"
             artifactName: MacOS
             artifactPath: export/release/macos/bin/*
           - name: Android
@@ -66,7 +66,7 @@ jobs:
       - name: Zip Windows x64 Build For Release
         run: |
           cd /home/runner/Windows-x64
-          zip -r "/home/runner/${{ env.PROJECT_NAME }}-Windows-x64.zip" .
+          zip -r "/home/runner/${{ env.PROJECT_NAME }}-Windows-x64.zip" "Windows-x64.zip".
 
       - name: Download Windows x32 Build
         uses: actions/download-artifact@main
@@ -77,7 +77,7 @@ jobs:
       - name: Zip Windows x32 Build For Release
         run: |
           cd /home/runner/Windows-x32
-          zip -r "/home/runner/${{ env.PROJECT_NAME }}-Windows-x32.zip" .
+          zip -r "/home/runner/${{ env.PROJECT_NAME }}-Windows-x32.zip" "Windows-x32.zip".
 
       - name: Download Linux Build
         uses: actions/download-artifact@main
@@ -88,7 +88,7 @@ jobs:
       - name: Tar Linux Build For Release
         run: |
           cd /home/runner/Linux
-          tar czf "/home/runner/${{ env.PROJECT_NAME }}-Linux.tar" .
+          tar czf "/home/runner/${{ env.PROJECT_NAME }}-Linux.tar" "Linux.tar".
 
       - name: Download MacOS Build
         uses: actions/download-artifact@main
@@ -99,7 +99,7 @@ jobs:
       - name: Tar MacOS Build For Release
         run: |
           cd /home/runner/MacOS
-          tar czf "/home/runner/${{ env.PROJECT_NAME }}-MacOS.tar" .
+          tar czf "/home/runner/${{ env.PROJECT_NAME }}-MacOS.tar" "MacOS.tar".
 
       - name: Download Android Build
         uses: actions/download-artifact@main

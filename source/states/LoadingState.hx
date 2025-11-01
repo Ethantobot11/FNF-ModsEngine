@@ -550,6 +550,7 @@ class LoadingState extends MusicBeatState
                     imgs.push(sprite.image);
                 }
             }
+		}
             prepare(imgs, snds, mscs);
 			}
 
@@ -603,7 +604,6 @@ class LoadingState extends MusicBeatState
 			trace('ERROR! while preparing song: $err');
 		});
       }
-    }
 
 	public static function clearInvalids()
 	{

@@ -144,10 +144,11 @@ class LoadingState extends MusicBeatState
 		bg.updateHitbox();
 		addBehindBar(bg);
 	
-		loadingText = new FlxText(520, 600, 400, new FlxText('now_loading', 'Now Loading', ['...']), 32);
-		loadingText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, LEFT, OUTLINE_FAST, FlxColor.BLACK);
-		loadingText.borderSize = 2;
-		addBehindBar(loadingText);
+		loadingText = new FlxText(520, 600, 400, "Now Loading...", 32);
+        loadingText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, LEFT, OUTLINE_FAST, FlxColor.BLACK);
+        loadingText.borderSize = 2;
+        addBehindBar(loadingText);
+
 	
 		logo = new FlxSprite(0, 0).loadGraphic(Paths.image('loading_screen/icon'));
 		logo.antialiasing = ClientPrefs.data.antialiasing;
@@ -236,7 +237,7 @@ class LoadingState extends MusicBeatState
 			case 2:
 				dots = '...';
 		}
-		loadingText.text = new FlxText('now_loading', 'Now Loading{1}', [dots]);
+		loadingText.text = "Now Loading" + dots;
 
 		if(!spawnedPessy)
 		{
@@ -517,9 +518,9 @@ class LoadingState extends MusicBeatState
 				var mscs:Array<String> = [];
 				if(stageData.preload != null)
 				{
-					for (asset in Reflect.fields(stageData.preload))
+					for (asset in Reflect.fields(stageData))
 					{
-						var filters:Int = Reflect.field(stageData.preload, asset);
+						var filters:Int = Reflect.field(stageData, asset);
 						var asset:String = asset.trim();
 
 						if(filters < 0 || StageData.validateVisibility(filters))
@@ -535,15 +536,17 @@ class LoadingState extends MusicBeatState
 				}
 				
 				if (stageData.objects != null)
-				{
-					for (sprite in stageData.objects)
-					{
-						if(sprite.type == 'sprite' || sprite.type == 'animatedSprite')
-							if((sprite.filters < 0 || StageData.validateVisibility(sprite.filters)) && !imgs.contains(sprite.image))
-								imgs.push(sprite.image);
-					}
-				}
-				prepare(imgs, snds, mscs);
+                {
+ 	for (sprite in cast(stageData.objects, Array<Dynamic>))
+	{
+		if (sprite.type == 'sprite' || sprite.type == 'animatedSprite')
+		{
+			if ((sprite.filters < 0 || StageData.validateVisibility(sprite.filters)) && !imgs.contains(sprite.image))
+				imgs.push(sprite.image);
+		}
+	}
+}
+prepare(imgs, snds, mscs);
 			}
 
 			songsToPrepare.push('$folder/Inst');

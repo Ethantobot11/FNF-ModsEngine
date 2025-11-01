@@ -772,12 +772,16 @@ class LoadingState extends MusicBeatState
 	// thread safe sound loader
 	static function preloadSound(key:String, ?path:String, ?modsAllowed:Bool = true, ?beepOnNull:Bool = true):Null<Sound>
 	{
-		var file:String = Paths.getPath(key) + '.${Paths.SOUND_EXT}', SOUND, path, modsAllowed;
+		var file:String = Paths.getPath(key, path, modsAllowed) + ".${Paths.SOUND_EXT}";
 
 		//trace('precaching sound: $file');
 		if(!Paths.currentTrackedSounds.exists(file))
 		{
-			if (#if sys FileSystem.exists(file) || #end OpenFlAssets.exists(file, Paths.SOUND))
+			#if sys
+           if(FileSystem.exists(file))
+            #else
+            if(OpenFlAssets.exists(file))
+            #end
 			{
 				var sound:Sound = #if sys Sound.fromFile(file) #else OpenFlAssets.getSound(file, false) #end;
 				mutex.acquire();

@@ -236,7 +236,7 @@ class LoadingState extends MusicBeatState
 			case 2:
 				dots = '...';
 		}
-		loadingText.text = Language.getPhrase('now_loading', 'Now Loading{1}', [dots]);
+		loadingText.text = new FlxText('now_loading', 'Now Loading{1}', [dots]);
 
 		if(!spawnedPessy)
 		{

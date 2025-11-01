@@ -128,3 +128,15 @@ class StageData {
 		return 'stage';
 	}
 }
+
+public static function validateVisibility(filters:LoadFilters)
+	{
+		if((filters & STORY_MODE) == STORY_MODE)
+			if(!PlayState.isStoryMode) return false;
+		else if((filters & FREEPLAY) == FREEPLAY)
+			if(PlayState.isStoryMode) return false;
+
+		return ((ClientPrefs.data.lowQuality && (filters & LOW_QUALITY) == LOW_QUALITY) ||
+			(!ClientPrefs.data.lowQuality && (filters & HIGH_QUALITY) == HIGH_QUALITY));
+	}
+}

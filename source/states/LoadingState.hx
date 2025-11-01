@@ -600,7 +600,6 @@ class LoadingState extends MusicBeatState
 		.onError((err:Dynamic) -> {
 			trace('ERROR! while preparing song: $err');
 		});
-	}
 
 	public static function clearInvalids()
 	{

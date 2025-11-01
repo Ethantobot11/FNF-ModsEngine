@@ -549,11 +549,9 @@ class LoadingState extends MusicBeatState
 			    }
           	 }
           }
-		}
-      }
-      prepare(imgs, snds, mscs);
-	  }
-
+	   }
+     }
+            prepare(imgs, snds, mscs);
 		    
 			songsToPrepare.push('$folder/Inst');
 

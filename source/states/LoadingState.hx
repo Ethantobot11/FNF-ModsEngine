@@ -546,12 +546,15 @@ class LoadingState extends MusicBeatState
                     !imgs.contains(sprite.image))
                 {
                     imgs.push(sprite.image);
-				}
-	}
-}
-prepare(imgs, snds, mscs);
-			}
+			    }
+          	 }
+          }
+		}
+      }
+      prepare(imgs, snds, mscs);
+	  }
 
+		    
 			songsToPrepare.push('$folder/Inst');
 
 			var player1:String = song.player1;

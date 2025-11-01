@@ -21,6 +21,15 @@ typedef StageFile = {
 	var camera_speed:Null<Float>;
 }
 
+enum abstract LoadFilters(Int) from Int from UInt to Int to UInt
+{
+	var LOW_QUALITY:Int = (1 << 0);
+	var HIGH_QUALITY:Int = (1 << 1);
+
+	var STORY_MODE:Int = (1 << 2);
+	var FREEPLAY:Int = (1 << 3);
+}
+
 class StageData {
 	public static function dummy():StageFile
 	{

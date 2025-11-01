@@ -16,7 +16,7 @@ jobs:
         include:
           - name: Windows x64
             os: windows-2022
-            buildArgs: "windows -final -X64 -D HXCPP_X64 -D 64bits -D officialBuild"
+            buildArgs: "windows -final -X64 -D HXCPP_X64 -D officialBuild"
             artifactName: Windows x64
             artifactPath: export/release/windows/bin/*
           - name: Windows x32

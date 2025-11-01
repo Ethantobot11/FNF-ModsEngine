@@ -551,6 +551,8 @@ class LoadingState extends MusicBeatState
                 }
             }
 		}
+	}
+}
             prepare(imgs, snds, mscs);
 			}
 

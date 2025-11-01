@@ -44,6 +44,7 @@ class Song
 	public var gameOverLoop:String;
 	public var gameOverEnd:String;
 	public var disableNoteRGB:Bool = false;
+	public static var loadedSongName:String = "";
 	public var speed:Float = 1;
 	public var stage:String;
 	public var player1:String = 'bf';
@@ -92,6 +93,7 @@ class Song
 
 	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong
 	{
+		loadedSongName = jsonInput;
 		var rawJson = null;
 		
 		var formattedFolder:String = Paths.formatToSongPath(folder);

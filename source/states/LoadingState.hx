@@ -547,10 +547,8 @@ class LoadingState extends MusicBeatState
                 {
                     imgs.push(sprite.image);
 			    }
-          	 }
-          }
-	   }
-     }
+          	  }
+            }
             prepare(imgs, snds, mscs);
 		    
 			songsToPrepare.push('$folder/Inst');

@@ -516,7 +516,7 @@ class LoadingState extends MusicBeatState
 				var imgs:Array<String> = [];
 				var snds:Array<String> = [];
 				var mscs:Array<String> = [];
-				if(stageData.preload != null)
+				if (stageData != null)
 				{
 					for (asset in Reflect.fields(stageData))
 					{
@@ -535,15 +535,18 @@ class LoadingState extends MusicBeatState
 					}
 				}
 				
-				if (stageData.objects != null)
+		if (Reflect.hasField(stageData, "objects"))
+        {
+        var stageObjects:Array<Dynamic> = cast Reflect.field(stageData, "objects");
+        for (sprite in stageObjects)
+        {
+            if (sprite.type == "sprite" || sprite.type == "animatedSprite")
+            {
+                if ((sprite.filters < 0 || StageData.validateVisibility(sprite.filters)) &&
+                    !imgs.contains(sprite.image))
                 {
- 	for (sprite in cast(stageData.objects, Array<Dynamic>))
-	{
-		if (sprite.type == 'sprite' || sprite.type == 'animatedSprite')
-		{
-			if ((sprite.filters < 0 || StageData.validateVisibility(sprite.filters)) && !imgs.contains(sprite.image))
-				imgs.push(sprite.image);
-		}
+                    imgs.push(sprite.image);
+				}
 	}
 }
 prepare(imgs, snds, mscs);

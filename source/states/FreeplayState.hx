@@ -223,7 +223,7 @@ class FreeplayState extends MusicBeatState
 		var leWeek:WeekData = WeekData.weeksLoaded.get(name);
 		return (!leWeek.startUnlocked && leWeek.weekBefore.length > 0 && (!StoryMenuState.weekCompleted.exists(leWeek.weekBefore) || !StoryMenuState.weekCompleted.get(leWeek.weekBefore)));
 	}
-
+}
 	var instPlaying:Int = -1;
 	public static var vocals:FlxSound = null;
 	var holdTime:Float = 0;
@@ -424,7 +424,7 @@ class FreeplayState extends MusicBeatState
 				trace('ERROR! $e');
 
 				var errorStr:String = e.toString();
-				if(errorStr.startsWith('[file_contents,assets/data/')) errorStr = 'Missing file: ' + errorStr.substring(34, errorStr.length-1); //Missing chart
+				if(errorStr.startsWith('[file_contents,assets/data/]')) errorStr = 'Missing file: ' + errorStr.substring(34, errorStr.length-1); //Missing chart
 				missingText.text = 'ERROR WHILE LOADING CHART:\n$errorStr';
 				missingText.screenCenter(Y);
 				missingText.visible = true;
@@ -530,7 +530,7 @@ class FreeplayState extends MusicBeatState
 				trace('ERROR! $e');
 
 				var errorStr:String = e.toString();
-				if(errorStr.startsWith('[file_contents,assets/data/')) errorStr = 'Missing file: ' + errorStr.substring(34, errorStr.length-1); //Missing chart
+				if(errorStr.startsWith('[file_contents,assets/data/]')) errorStr = 'Missing file: ' + errorStr.substring(34, errorStr.length-1); //Missing chart
 				missingText.text = 'ERROR WHILE LOADING CHART:\n$errorStr';
 				missingText.screenCenter(Y);
 				missingText.visible = true;
@@ -734,3 +734,4 @@ class SongMetadata
 		if(this.folder == null) this.folder = '';
 	}
 }
+	}

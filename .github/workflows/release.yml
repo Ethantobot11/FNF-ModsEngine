@@ -127,7 +127,7 @@ jobs:
         with:
           name: "9.6.6"
           tag_name: "9.6.6"
-          last_release: false
+          make_latest: false
           files: |
             /home/runner/*.apk
             /home/runner/*.ipa

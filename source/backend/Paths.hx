@@ -117,6 +117,9 @@ class Paths
 		if (library != null)
 			return getLibraryPath(file, library);
 
+		if (library != null)
+			return getLibraryPath(file, library);
+
 		if (currentLevel != null)
 		{
 			var levelPath:String = '';
@@ -125,14 +128,18 @@ class Paths
 				if (OpenFlAssets.exists(levelPath, type))
 					return levelPath;
 			}
+
+			levelPath = getLibraryPathForce(file, "shared");
+			if (OpenFlAssets.exists(levelPath, type))
+				return levelPath;
 		}
 
-		return getSharedPath(file);
+		return getPreloadPath(file);
 	}
 
-	static public function getLibraryPath(file:String, library = "shared")
+	static public function getLibraryPath(file:String, library = "preload")
 	{
-		return if (library == "shared") getSharedPath(file); else getLibraryPathForce(file, library);
+		return if (library == "preload" || library == "shared") getPreloadPath(file); else getLibraryPathForce(file, library);
 	}
 
 	inline static function getLibraryPathForce(file:String, library:String, ?level:String)

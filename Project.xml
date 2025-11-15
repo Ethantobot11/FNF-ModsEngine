@@ -26,7 +26,7 @@
 	<define name="ACHIEVEMENTS_ALLOWED" />
 	<define name="DISCORD_ALLOWED" if="desktop" />
 	<define name="COPYSTATE_ALLOWED" if="MODS_ALLOWED mobile"/>
-	<define name="NO_PRELOAD_ALL"/>
+	<define name="PSYCH_WATERMARKS" /> <!-- DELETE THIS TO REMOVE WATERMARKS/DEV NAMES ON TITLE SCREEN -->
 	<define name="VIDEOS_ALLOWED" if="desktop || mobile" unless="32bits || hl || NOVIDEO || rpi"/> <!-- i'll keep this cuz it makes vscode think i don't use videos -->
 
 	<section if="officialBuild">
@@ -59,6 +59,28 @@
 	<classpath name="source" />
 
 	<!-- __________________________ Game Assets & Etc. __________________________ -->
+
+	<!-- Preload Assets -->
+	<define name="PRELOAD_ALL" unless="web" />
+	<define name="NO_PRELOAD_ALL" unless="PRELOAD_ALL" />
+
+	<assets path="assets/fonts" />
+	<assets path="assets/preload" rename="assets/shared" exclude="*.ogg" if="web" />
+	<assets path="assets/preload" rename="assets/shared" exclude="*.mp3" unless="web" />
+
+	<!-- Week Assets -->
+	<library name="videos" preload="true" />
+	<section if="PRELOAD_ALL">
+		<library name="songs" preload="true" />
+		<library name="shared" preload="true" />
+		<library name="week_assets" preload="true" />
+	</section>
+	
+	<section if="NO_PRELOAD_ALL">
+		<library name="songs" preload="false" />
+		<library name="shared" preload="false" />
+		<library name="week_assets" preload="false" />
+	</section>
 
 	<!-- Assets -->
 	<assets path="assets/fonts" />

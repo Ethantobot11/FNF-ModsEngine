@@ -143,6 +143,23 @@ class CoolUtil
 		// #end
 	}
 
+	public static function loadSong(?name:String = null, ?difficultyNum:Int = -1)
+	{
+		if (name == null || name.length < 1)
+			name = PlayState.SONG.song;
+		if (difficultyNum == -1)
+			difficultyNum = PlayState.storyDifficulty;
+
+		var poop:String = Highscore.formatSong(name, difficultyNum);
+		PlayState.SONG = Song.loadFromJson(poop, name);
+		PlayState.storyDifficulty = difficultyNum;
+		LoadingState.prepareToSong();
+		LoadingState.loadAndSwitchState(new PlayState());
+
+		// FlxG.sound.music.pause();
+		// FlxG.sound.music.volume = 0;
+	}
+
 	public static function setTextBorderFromString(text:FlxText, border:String)
 	{
 		switch(border.toLowerCase().trim())

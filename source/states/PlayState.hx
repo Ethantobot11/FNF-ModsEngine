@@ -294,9 +294,10 @@ class PlayState extends MusicBeatState
     // --- PRELOAD TASKS ---
     preloadTasks = [
     () -> {
-        // Load song JSON manually
-        var songPath = Paths.formatToSongPath("tutorial");
-        SONG = Paths.getSong(songPath); // getSong already returns a Song instance
+        // Load song JSON
+        if (SONG == null) {
+            SONG = Song.loadFromJson("tutorial"); // <-- correct method
+        }
     },
     () -> {
         // Preload music
@@ -308,7 +309,6 @@ class PlayState extends MusicBeatState
         Paths.image("dad");
     }
 ];
-
     // --- ASYNC LOOP TO PROCESS TASKS ---
     var totalTasks = preloadTasks.length;
 

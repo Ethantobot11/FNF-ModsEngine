@@ -278,28 +278,10 @@ class PlayState extends MusicBeatState
 	public var luaTouchPad:TouchPad;
 	#end
 
-	public var currentSongName:String;
-
-    function initCurrentSong() {
-    var songsFolder = Paths.formatToSongPath(""); // base songs folder
-    var files:Array<String> = [];
-
-    #if sys
-    if (FileSystem.exists(songsFolder)) {
-        files = sys.io.Directory.readDirectory(songsFolder)
-            .filter(f -> f.endsWith(".json")); // only song JSON files
-    }
-    #end
-
-    if (files.length > 0) {
-        currentSongName = files[0].split(".")[0]; // first song name without extension
-    } else {
-        currentSongName = "tutorial"; // fallback
-    }
-}
 	var loaderBar:FlxSprite;
 	var preloadTasks:Array<Void->Void>;
 	var asyncLoop:FlxAsyncLoop;
+	public var precacheList:Map<String, String> = new Map<String, String>();
 
 	override public function create():Void {
     super.create();
@@ -307,8 +289,7 @@ class PlayState extends MusicBeatState
 	initCurrentSong();
 
     // --- SIMPLE VANILLA LOADING BAR ---
-    loaderBar = new FlxSprite(0, FlxG.height - 20)
-        .makeGraphic(FlxG.width, 10, 0xFF00FF00);
+    loaderBar = new FlxSprite(0, FlxG.height - 20).makeGraphic(FlxG.width, 10, 0xFF00FF00);
     loaderBar.scale.x = 0;
     add(loaderBar);
 

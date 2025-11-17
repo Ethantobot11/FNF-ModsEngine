@@ -84,7 +84,7 @@ class LoadingScreen extends Sprite {
 			loadingTime = 0;
 		if (loadingTime >= 20) { // changed from 10 to 20 for ppl with low end pcs
 			toggle(false);
-			MusicBeatState.switchState(new MainMenuState);
+			MusicBeatState.switchState(new MainMenuState());
 		}
 
 		alpha = FlxMath.lerp(alpha, targetAlpha, delta * 0.01);

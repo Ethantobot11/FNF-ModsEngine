@@ -45,6 +45,8 @@ import sys.io.*;
 import js.html.*;
 #end
 
+import objects.LoadingSprite;
+
 import backend.Paths;
 import backend.Controls;
 import backend.CoolUtil;

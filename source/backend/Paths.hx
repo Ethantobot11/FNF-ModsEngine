@@ -17,6 +17,9 @@ import flash.media.Sound;
 
 import haxe.Json;
 
+import sys.FileSystem;
+import sys.io.Directory;
+
 
 #if MODS_ALLOWED
 import backend.Mods;
@@ -651,10 +654,6 @@ class Paths
     var folderPath = formatToSongPath(songName);
     var images:Array<String> = [];
 
-    #if sys
-    import sys.FileSystem;
-    import sys.io.Directory;
-
     if (Directory.exists(folderPath)) {
         for (file in Directory.readDirectory(folderPath)) {
             if (file.endsWith(".png") || file.endsWith(".jpg")) {
@@ -662,7 +661,6 @@ class Paths
             }
         }
     }
-    #end
 
     return images;
  }

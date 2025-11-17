@@ -647,4 +647,23 @@ class Paths
 		return dirs.map(dir -> dir.substr(dir.lastIndexOf("/") + 1));
 		#end
 	}
+    public static function getImagesInSong(songName:String):Array<String> {
+    var folderPath = formatToSongPath(songName);
+    var images:Array<String> = [];
+
+    #if sys
+    import sys.FileSystem;
+    import sys.io.Directory;
+
+    if (Directory.exists(folderPath)) {
+        for (file in Directory.readDirectory(folderPath)) {
+            if (file.endsWith(".png") || file.endsWith(".jpg")) {
+                images.push(songName + "/" + file);
+            }
+        }
+    }
+    #end
+
+    return images;
+ }
 }

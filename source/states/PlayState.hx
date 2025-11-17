@@ -293,26 +293,30 @@ class PlayState extends MusicBeatState
 
     // --- PRELOAD TASKS ---
     preloadTasks = [
-        () -> {
-            if (SONG == null) loadSong("tutorial");
-        },
-        () -> {
-            Paths.music(SONG.song);
-        },
-        () -> {
-            Paths.image("boyfriend");
-            Paths.image("dad");
+    () -> {
+        if (SONG == null) {
+            SONG = Song.load(Paths.formatToSongPath("tutorial"));
         }
-    ];
+    },
+    () -> {
+        Paths.music(SONG.song);
+    },
+    () -> {
+        Paths.image("boyfriend");
+        Paths.image("dad");
+    }
+];
 
     // --- ASYNC LOOP TO PROCESS TASKS ---
-    asyncLoop = new FlxAsyncLoop(preloadTasks.length, () -> {
-        preloadTasks.shift()();
-        loaderBar.scale.x = (asyncLoop._count - preloadTasks.length) / asyncLoop._count;
+    var totalTasks = preloadTasks.length;
 
-        if (preloadTasks.length <= 0) {
-            remove(loaderBar);
-            startSong();
+    var asyncLoop = new FlxAsyncLoop(totalTasks, () -> {
+    preloadTasks.shift()(); // Run next task
+    loaderBar.scale.x = (totalTasks - preloadTasks.length) / totalTasks;
+
+    if (preloadTasks.length <= 0) {
+        remove(loaderBar);
+        startSong(); // Continue normal gameplay init
         }
     }, 1);
 

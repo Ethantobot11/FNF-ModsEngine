@@ -284,7 +284,7 @@ class PlayState extends MusicBeatState
 
 	override public function create()
 	{
-		// ------------------------------
+	// ------------------------------
     // SIMPLE VANILLA LOADING BAR
     // ------------------------------
     var loaderBar:FlxSprite = new FlxSprite(0, FlxG.height - 20).makeGraphic(FlxG.width, 10, 0xFF00FF00);
@@ -327,7 +327,8 @@ class PlayState extends MusicBeatState
     }, 1);
 
     add(asyncLoop);
-	}		//trace('Playback Rate: ' + playbackRate);
+	}
+}//trace('Playback Rate: ' + playbackRate);
 		Paths.clearStoredMemory();
 
 		startCallback = startCountdown;

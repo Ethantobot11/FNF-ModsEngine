@@ -6,6 +6,7 @@ import backend.WeekData;
 import backend.Song;
 import backend.Section;
 import backend.Rating;
+import objects.LoadingScreen;
 
 import flixel.FlxBasic;
 import flixel.FlxObject;

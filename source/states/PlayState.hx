@@ -293,22 +293,25 @@ class PlayState extends MusicBeatState
 
     // --- PRELOAD TASKS ---
     preloadTasks = [
-    () -> {
-        // Load song JSON
-        if (SONG == null) {
-            SONG = Song.loadFromJson("tutorial"); // <-- correct method
+        () -> {
+            // Load song JSON dynamically
+            if (SONG == null) {
+                SONG = Song.loadFromJson(currentSongName);
+            }
+        },
+        () -> {
+            // Preload music
+            Paths.music(SONG.song);
+        },
+        () -> {
+            // Dynamically preload all images found in song folder
+            var imageList = Paths.getImagesInSong(currentSongName);
+            for (img in imageList) {
+                Paths.image(img);
+            }
         }
-    },
-    () -> {
-        // Preload music
-        Paths.music(SONG.song);
-    },
-    () -> {
-        // Preload images
-        Paths.image("boyfriend");
-        Paths.image("dad");
-    }
-];
+    ];
+		
     // --- ASYNC LOOP TO PROCESS TASKS ---
     var totalTasks = preloadTasks.length;
 

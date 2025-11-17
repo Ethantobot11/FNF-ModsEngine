@@ -12,7 +12,7 @@ class LoadingSprite extends FlxTypedGroup<FlxBasic> {
         super();
         
 		var funkay = new FlxSprite();
-		var funkayGraphic = Paths.image('modsEngineLogo', null, false).bitmap;
+		var funkayGraphic = Paths.image('funkay', null, false).bitmap;
 		funkay.makeGraphic(FlxG.width, FlxG.height, funkayGraphic.getPixel32(0, 0), true, "_funkay"); // kms
 		funkayGraphic.image.resize(Std.int(funkayGraphic.image.width * (FlxG.height / funkayGraphic.image.height)), FlxG.height);
 		funkay.graphic.bitmap.copyPixels(funkayGraphic, new Rectangle(0, 0, funkay.graphic.bitmap.width, funkay.graphic.bitmap.height),

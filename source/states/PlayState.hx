@@ -315,7 +315,7 @@ class PlayState extends MusicBeatState
         }
     }, 1);
 
-    add(asyncLoop)
+    add(asyncLoop);
 		Paths.clearStoredMemory();
 
 		startCallback = startCountdown;

@@ -17,11 +17,6 @@ import flash.media.Sound;
 
 import haxe.Json;
 
-#if sys
-import sys.io.Directory;
-import sys.FileSystem;
-#end
-
 
 #if MODS_ALLOWED
 import backend.Mods;
@@ -652,20 +647,4 @@ class Paths
 		return dirs.map(dir -> dir.substr(dir.lastIndexOf("/") + 1));
 		#end
 	}
-    public static function getImagesInSong(songName:String):Array<String> {
-    var folderPath = formatToSongPath(songName);
-    var images:Array<String> = [];
-
-	#if sys
-    if (Directory.exists(folderPath)) {
-        for (file in Directory.readDirectory(folderPath)) {
-            if (file.endsWith(".png") || file.endsWith(".jpg")) {
-                images.push(songName + "/" + file);
-            }
-        }
-    }
-	#end
-
-    return images;
- }
 }

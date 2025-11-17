@@ -277,8 +277,45 @@ class PlayState extends MusicBeatState
 	public var luaTouchPad:TouchPad;
 	#end
 
-	override public function create()
-	{
+	var loaderBar:FlxSprite;
+	var preloadTasks:Array<Void->Void>;
+	var asyncLoop:FlxAsyncLoop;
+
+	override public function create():Void {
+    super.create();
+
+    // --- SIMPLE VANILLA LOADING BAR ---
+    loaderBar = new FlxSprite(0, FlxG.height - 20)
+        .makeGraphic(FlxG.width, 10, 0xFF00FF00);
+    loaderBar.scale.x = 0;
+    add(loaderBar);
+
+    // --- PRELOAD TASKS ---
+    preloadTasks = [
+        () -> {
+            if (SONG == null) loadSong("tutorial");
+        },
+        () -> {
+            Paths.music(SONG.song);
+        },
+        () -> {
+            Paths.image("boyfriend");
+            Paths.image("dad");
+        }
+    ];
+
+    // --- ASYNC LOOP TO PROCESS TASKS ---
+    asyncLoop = new FlxAsyncLoop(preloadTasks.length, () -> {
+        preloadTasks.shift()();
+        loaderBar.scale.x = (asyncLoop._count - preloadTasks.length) / asyncLoop._count;
+
+        if (preloadTasks.length <= 0) {
+            remove(loaderBar);
+            startSong();
+        }
+    }, 1);
+
+    add(asyncLoop)
 		Paths.clearStoredMemory();
 
 		startCallback = startCountdown;
@@ -322,60 +359,18 @@ class PlayState extends MusicBeatState
 		FlxG.cameras.add(luaTpadCam, false);
 		grpNoteSplashes = new FlxTypedGroup<NoteSplash>();
 
+		
+
 		persistentUpdate = true;
 		persistentDraw = true;
-
-		// ------------------------------
-    // SIMPLE VANILLA LOADING BAR
-    // ------------------------------
-    var loaderBar:FlxSprite = new FlxSprite(0, FlxG.height - 20).makeGraphic(FlxG.width, 10, 0xFF00FF00);
-    loaderBar.scale.x = 0;
-    add(loaderBar);
-
-    // ------------------------------
-    // PRELOAD TASKS
-    // ------------------------------
-    var preloadTasks:Array<Void->Void> = [
-        () -> {
-            // Load song JSON
-            if (SONG == null) loadSong("tutorial"); 
-        },
-        () -> {
-            // Preload music
-            Paths.music(SONG.song);
-        },
-        () -> {
-            // Preload any sprites or images
-            Paths.image("boyfriend");
-            Paths.image("dad");
-        }
-    ];
-
-    // ------------------------------
-    // ASYNC LOOP TO PROCESS TASKS
-    // ------------------------------
-    var asyncLoop:FlxAsyncLoop = new FlxAsyncLoop(preloadTasks.length, () -> {
-        preloadTasks.shift()(); // Run next task
-
-        // Update loader bar
-        loaderBar.scale.x = (asyncLoop._count - preloadTasks.length) / asyncLoop._count;
-
-        // Loading done
-        if (preloadTasks.length <= 0) {
-            remove(loaderBar);
-            startSong(); // Continue normal gameplay init
-        }
-    }, 1);
-
-    add(asyncLoop);
-	}
-}//trace('Playback Rate: ' + playbackRate);
 
 		if (SONG == null)
 			SONG = Song.loadFromJson('tutorial');
 
 		Conductor.mapBPMChanges(SONG);
 		Conductor.bpm = SONG.bpm;
+
+		
 
 
 		#if DISCORD_ALLOWED

@@ -277,9 +277,57 @@ class PlayState extends MusicBeatState
 	public var luaTouchPad:TouchPad;
 	#end
 
+	// Loading bar
+	var loaderBar:FlxSprite;
+	var preloadTasks:Array<Void->Void>;
+	var asyncLoop:FlxAsyncLoop;
+
 	override public function create()
 	{
-		//trace('Playback Rate: ' + playbackRate);
+		// ------------------------------
+    // SIMPLE VANILLA LOADING BAR
+    // ------------------------------
+    var loaderBar:FlxSprite = new FlxSprite(0, FlxG.height - 20).makeGraphic(FlxG.width, 10, 0xFF00FF00);
+    loaderBar.scale.x = 0;
+    add(loaderBar);
+
+    // ------------------------------
+    // PRELOAD TASKS
+    // ------------------------------
+    var preloadTasks:Array<Void->Void> = [
+        () -> {
+            // Load song JSON
+            if (SONG == null) loadSong("tutorial"); 
+        },
+        () -> {
+            // Preload music
+            Paths.music(SONG.song);
+        },
+        () -> {
+            // Preload any sprites or images
+            Paths.image("boyfriend");
+            Paths.image("dad");
+        }
+    ];
+
+    // ------------------------------
+    // ASYNC LOOP TO PROCESS TASKS
+    // ------------------------------
+    var asyncLoop:FlxAsyncLoop = new FlxAsyncLoop(preloadTasks.length, () -> {
+        preloadTasks.shift()(); // Run next task
+
+        // Update loader bar
+        loaderBar.scale.x = (asyncLoop._count - preloadTasks.length) / asyncLoop._count;
+
+        // Loading done
+        if (preloadTasks.length <= 0) {
+            remove(loaderBar);
+            startSong(); // Continue normal gameplay init
+        }
+    }, 1);
+
+    add(asyncLoop);
+	}		//trace('Playback Rate: ' + playbackRate);
 		Paths.clearStoredMemory();
 
 		startCallback = startCountdown;

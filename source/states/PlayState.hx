@@ -331,7 +331,6 @@ class PlayState extends MusicBeatState
 					loaderGroup.killMembers();
 					FlxG.cameras.remove(camLoading, true);
 				}});
-    if (preloadTasks.length <= 0) {
         remove(loaderBar);
         startSong(); // Continue normal gameplay init
         }

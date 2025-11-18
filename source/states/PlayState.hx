@@ -316,6 +316,9 @@ class PlayState extends MusicBeatState
     var totalTasks = preloadTasks.length;
 	var asyncLoop:FlxAsyncLoop;
     var isCreated:Bool = false;
+	public var camLoading:FlxCamera;
+	public static var orderOffset:Int = 0;
+	var isCreated:Bool = false;
 	var loaderGroup = new objects.LoadingSprite(preloadTasks.length, camLoading);
 	add(loaderGroup);
 

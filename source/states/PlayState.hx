@@ -285,9 +285,6 @@ class PlayState extends MusicBeatState
 
 	override public function create():Void {
     super.create();
-
-	initCurrentSong();
-
     // --- SIMPLE VANILLA LOADING BAR ---
     loaderBar = new FlxSprite(0, FlxG.height - 20).makeGraphic(FlxG.width, 10, 0xFF00FF00);
     loaderBar.scale.x = 0;

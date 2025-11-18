@@ -281,9 +281,9 @@ class PlayState extends MusicBeatState
 	public var luaTouchPad:TouchPad;
 	#end
 
-	var loaderBar:FlxSprite;
 	var preloadTasks:Array<Void->Void>;
 	var asyncLoop:FlxAsyncLoop;
+    var isCreated:Bool = false;
 	public var precacheList:Map<String, String> = new Map<String, String>();
 
 	override public function create():Void {
@@ -317,10 +317,7 @@ class PlayState extends MusicBeatState
 		
     // --- ASYNC LOOP TO PROCESS TASKS ---
     var totalTasks = preloadTasks.length;
-	var asyncLoop:FlxAsyncLoop;
-    var isCreated:Bool = false;
-	var isCreated:Bool = false;
-	var loaderGroup = new objects.LoadingSprite(preloadTasks.length, camLoading);
+	var isCreated:Bool = false;	var loaderGroup = new objects.LoadingSprite(preloadTasks.length, camLoading);
 	add(loaderGroup);
 
             asyncLoop = new FlxAsyncLoop(preloadTasks.length, () -> {

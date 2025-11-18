@@ -285,10 +285,6 @@ class PlayState extends MusicBeatState
 
 	override public function create():Void {
     super.create();
-    // --- SIMPLE VANILLA LOADING BAR ---
-    loaderBar = new FlxSprite(0, FlxG.height - 20).makeGraphic(FlxG.width, 10, 0xFF00FF00);
-    loaderBar.scale.x = 0;
-    add(loaderBar);
 
     // --- PRELOAD TASKS ---
     preloadTasks = [
@@ -318,18 +314,32 @@ class PlayState extends MusicBeatState
 		
     // --- ASYNC LOOP TO PROCESS TASKS ---
     var totalTasks = preloadTasks.length;
+	var asyncLoop:FlxAsyncLoop;
+    var isCreated:Bool = false;
+	var loaderGroup = new objects.LoadingSprite(preloadTasks.length, camLoading);
+	add(loaderGroup);
 
-    var asyncLoop = new FlxAsyncLoop(totalTasks, () -> {
-    preloadTasks.shift()(); // Run next task
-    loaderBar.scale.x = (totalTasks - preloadTasks.length) / totalTasks;
+            asyncLoop = new FlxAsyncLoop(preloadTasks.length, () -> {
+			preloadTasks.shift()();
 
+			loaderGroup.addProgress(preloadTasks.length);
+
+			if (preloadTasks.length <= 0) {
+				isCreated = true;
+
+				FlxTween.tween(camLoading, {alpha: 0}, 0.5, {ease: FlxEase.circOut, onComplete: t -> {
+					loaderGroup.killMembers();
+					FlxG.cameras.remove(camLoading, true);
+				}});
     if (preloadTasks.length <= 0) {
         remove(loaderBar);
         startSong(); // Continue normal gameplay init
         }
     }, 1);
 
-    add(asyncLoop);
+        loaderGroup.add(asyncLoop);
+
+		orderOffset = 2;
 		Paths.clearStoredMemory();
 
 		startCallback = startCountdown;
@@ -1779,6 +1789,14 @@ class PlayState extends MusicBeatState
 
 	override public function update(elapsed:Float)
 	{
+		if (!isCreated) {
+			if (!asyncLoop.started) {
+				asyncLoop.start();
+			}
+
+			super.update(elapsed);
+			return;
+		}
 		if(!inCutscene && !paused && !freezeCamera) {
 			FlxG.camera.followLerp = 2.4 * cameraSpeed * playbackRate;
 			if(!startingSong && !endingSong && boyfriend.getAnimationName().startsWith('idle')) {
@@ -2043,9 +2061,9 @@ class PlayState extends MusicBeatState
 					if (healthBar.percent > 80)
 						iconP1.animation.curAnim.curFrame = 2;
 					else if (healthBar.percent < 20)
-						iconP1.animation.curAnim.curFrame = 1;
-					else
 						iconP1.animation.curAnim.curFrame = 0;
+					else
+						iconP1.animation.curAnim.curFrame = 1;
 				} else {
 					iconP1.animation.curAnim.curFrame = (healthBar.percent < 20) ? 0 : 1;
 				}
@@ -3300,6 +3318,9 @@ class PlayState extends MusicBeatState
 	var lastStepHit:Int = -1;
 	override function stepHit()
 	{
+		if (!isCreated) {
+			return;
+		}
 		if (SONG.needsVoices && FlxG.sound.music.time >= -ClientPrefs.data.noteOffset)
 		{
 			var timeSub:Float = Conductor.songPosition - Conductor.offset;
@@ -3327,6 +3348,9 @@ class PlayState extends MusicBeatState
 
 	override function beatHit()
 	{
+		if (!isCreated) {
+			return;
+		}
 		if(lastBeatHit >= curBeat) {
 			//trace('BEAT HIT: ' + curBeat + ', LAST HIT: ' + lastBeatHit);
 			return;
@@ -3381,6 +3405,9 @@ class PlayState extends MusicBeatState
 
 	override function sectionHit()
 	{
+		if (!isCreated) {
+			return;
+		}
 		if (SONG.notes[curSection] != null)
 		{
 			if (generatedMusic && !endingSong && !isCameraOnForcedPos)

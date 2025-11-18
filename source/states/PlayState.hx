@@ -380,7 +380,18 @@ class PlayState extends MusicBeatState
 		FlxG.cameras.add(camHUD, false);
 		FlxG.cameras.add(camOther, false);
 		FlxG.cameras.add(luaTpadCam, false);
+		FlxG.cameras.add(camLoading, false);
 		grpNoteSplashes = new FlxTypedGroup<NoteSplash>();
+		
+		CustomFadeTransition.nextCamera = camLoading;
+		function realignLoadCam(cam:FlxCamera) {
+		if (cam == camLoading || !FlxG.cameras.list.contains(camLoading))
+			return;
+
+		FlxG.cameras.remove(camLoading, false);
+		FlxG.cameras.add(camLoading, false);
+		FlxG.cameras.cameraAdded.addOnce(realignLoadCam);
+	    }
 
 		
 

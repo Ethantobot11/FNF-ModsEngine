@@ -294,7 +294,8 @@ class PlayState extends MusicBeatState
     FlxG.cameras.add(camLoading, false);
 
     // ---- Create loading UI ----
-    var loaderGroup = new objects.LoadingSprite(precacheList.keys().length + 2, camLoading);
+    var keyArray:Array<String> = Array.from(precacheList.keys());
+    var loaderGroup = new objects.LoadingSprite(keyArray.length + 2, camLoading);
     add(loaderGroup);
 
     // ---- Generate preload tasks ----
@@ -382,7 +383,6 @@ class PlayState extends MusicBeatState
 		FlxG.cameras.add(camLoading, false);
 		grpNoteSplashes = new FlxTypedGroup<NoteSplash>();
 		
-		CustomFadeTransition.nextCamera = camLoading;
 		function realignLoadCam(cam:FlxCamera) {
 		if (cam == camLoading || !FlxG.cameras.list.contains(camLoading))
 			return;

@@ -215,6 +215,7 @@ class PlayState extends MusicBeatState
 	public var camGame:FlxCamera;
 	public var camOther:FlxCamera;
 	public var luaTpadCam:FlxCamera;
+	public var camLoading:FlxCamera;
 	public var cameraSpeed:Float = 1;
 	
 	public var dancingLeft:Bool = false;
@@ -256,6 +257,8 @@ class PlayState extends MusicBeatState
 	var keysPressed:Array<Int> = [];
 	var boyfriendIdleTime:Float = 0.0;
 	var boyfriendIdled:Bool = false;
+
+	public static var orderOffset:Int = 0;
 
 	// Lua shit
 	public static var instance:PlayState;
@@ -316,8 +319,6 @@ class PlayState extends MusicBeatState
     var totalTasks = preloadTasks.length;
 	var asyncLoop:FlxAsyncLoop;
     var isCreated:Bool = false;
-	public var camLoading:FlxCamera;
-	public static var orderOffset:Int = 0;
 	var isCreated:Bool = false;
 	var loaderGroup = new objects.LoadingSprite(preloadTasks.length, camLoading);
 	add(loaderGroup);

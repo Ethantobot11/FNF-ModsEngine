@@ -8,6 +8,7 @@ import backend.Section;
 import backend.Rating;
 import objects.LoadingScreen;
 
+import flixel.addons.util.FlxAsyncLoop;
 import flixel.FlxBasic;
 import flixel.FlxObject;
 import flixel.FlxSubState;

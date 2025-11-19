@@ -290,56 +290,56 @@ class PlayState extends MusicBeatState
     super.create();
 
     // ---- Create dedicated loading camera ----
-    var camLoading = new FlxCamera();
-    camLoading.bgColor = 0x00000000;
-    FlxG.cameras.add(camLoading, false);
+	var camLoading = new FlxCamera();
+	camLoading.bgColor = 0x00000000;
+	FlxG.cameras.add(camLoading, false);
 
-    // ---- Create loading UI ----
-    var keyArray:Array<String> = Array.from(precacheList.keys());
-    var loaderGroup = new objects.LoadingSprite(keyArray.length + 2, camLoading);
-    add(loaderGroup);
+	// ---- Create loading UI ----
+	var loaderGroup = new LoadingScreen();
+	loaderGroup.cameras = [camLoading];
+	add(loaderGroup);
+	LoadingScreen.toggle(true);
 
-    // ---- Generate preload tasks ----
-    preloadTasks = [
-        () -> cacheCountdown(),
-        () -> cachePopUpScore(),
-        () -> {
-            for (key => type in precacheList) {
-                switch type {
-                    case "image": Paths.image(key);
-                    case "sound": Paths.sound(key);
-                    case "music": Paths.music(key);
-                }
+	// ---- Generate preload tasks ----
+	preloadTasks = [
+  	  () -> cacheCountdown(),
+   	  () -> cachePopUpScore(),
+      () -> {
+       	 for (key => type in precacheList) {
+           	 switch(type) {
+                case "image": Paths.image(key);
+                case "sound": Paths.sound(key);
+                case "music": Paths.music(key);
             }
         }
-    ];
+    }
+];
 
-    var totalTasks = preloadTasks.length;
+	var totalTasks = preloadTasks.length;
 
-    // ---- Async loop handling ----
-    asyncLoop = new FlxAsyncLoop(totalTasks, () -> {
-        preloadTasks.shift()();
+	// ---- Async loop handling ----
+	asyncLoop = new FlxAsyncLoop(totalTasks, () -> {
+    preloadTasks.shift()();
 
-        var remaining = preloadTasks.length;
-        loaderGroup.addProgress(remaining); // updates bar progress
+    if (preloadTasks.length <= 0 && !isCreated) {
+        isCreated = true;
 
-        if (remaining <= 0 && !isCreated) {
-            isCreated = true;
+        // Remove loader screen
+        LoadingScreen.toggle(false);
 
-            // Fade out loading screen
-            FlxTween.tween(camLoading, {alpha: 0}, 0.5, {
-                ease: FlxEase.circOut,
-                onComplete: t -> {
-                    loaderGroup.killMembers();
-                    FlxG.cameras.remove(camLoading, true);
-                }
-            });
+        FlxTween.tween(camLoading, {alpha: 0}, 0.5, {
+            ease: FlxEase.circOut,
+            onComplete: t -> {
+                FlxG.cameras.remove(camLoading, true);
+            }
+        });
 
-            startSong();
-        }
-    }, 1);
+        startSong();
+  		}
+	}, 1);
 
-        loaderGroup.add(asyncLoop);
+		// Add async loop so it updates
+		add(asyncLoop);
 		Paths.clearStoredMemory();
 
 		startCallback = startCountdown;

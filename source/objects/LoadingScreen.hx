@@ -4,17 +4,14 @@ import flixel.FlxSprite;
 import flixel.group.FlxGroup;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
-import flixel.math.FlxAngle;
-import flixel.math.FlxPoint;
+import flixel.FlxG;
 
 class LoadingScreen extends FlxGroup
 {
     public var bg:FlxSprite;
     public var dots:Array<FlxSprite> = [];
-    public var alphaTarget:Float = 0;
-    public var rotationSpeed:Float = 80;
-    public var radius:Float = 60;
-    public static var loading:Bool = false;
+    public var currentAlpha:Float = 0;
+    public var targetAlpha:Float = 1;
     public static var instance:LoadingScreen;
 
     public function new()
@@ -22,63 +19,68 @@ class LoadingScreen extends FlxGroup
         super();
 
         instance = this;
-        loading = true;
 
         // Background overlay
         bg = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
         bg.alpha = 0.6;
         add(bg);
 
-        // Create circle dots
+        // Create spinning dots
         for (i in 0...4)
         {
             var dot = new FlxSprite().makeGraphic(10, 10, FlxColor.WHITE);
-            dot.updateHitbox();
-            add(dot);
             dots.push(dot);
+            add(dot);
         }
 
-        // Fade in
-        alpha = 0;
-        alphaTarget = 1;
+        // Start invisible
+        currentAlpha = 0;
+        setAlpha(0);
     }
 
-    override public function update(elapsed:Float):Void
+    override public function update(elapsed:Float)
     {
         super.update(elapsed);
 
-        // Fade effect
-        alpha = lerp(alpha, alphaTarget, elapsed * 6);
+        // Smooth fade
+        currentAlpha += (targetAlpha - currentAlpha) * 6 * elapsed;
+        setAlpha(currentAlpha);
 
-        if (alpha == 0) return; // prevent drawing when invisible
+        // Don't update circle if invisible
+        if (currentAlpha <= 0.01) return;
 
-        var angleStep = 360 / dots.length;
         var centerX = FlxG.width / 2;
         var centerY = FlxG.height / 2;
+        var angleStep = 360 / dots.length;
 
         for (i in 0...dots.length)
         {
-            var dot = dots[i];
-            var angle = (FlxG.game.ticks * 0.2 + angleStep * i) % 360;
-
-            dot.x = centerX + Math.cos(angle * (Math.PI / 180)) * radius;
-            dot.y = centerY + Math.sin(angle * (Math.PI / 180)) * radius;
+            var angle = (FlxG.game.ticks * 0.2 + angleStep * i);
+            dots[i].x = centerX + Math.cos(angle * Math.PI / 180) * 60;
+            dots[i].y = centerY + Math.sin(angle * Math.PI / 180) * 60;
         }
+    }
+
+    /** Applies alpha to all elements */
+    public function setAlpha(val:Float)
+    {
+        bg.alpha = 0.6 * val;
+
+        for (dot in dots)
+            dot.alpha = val;
     }
 
     public static function toggle(show:Bool)
     {
         if (instance == null) return;
 
-        loading = show;
-        instance.alphaTarget = show ? 1 : 0;
+        instance.targetAlpha = show ? 1 : 0;
 
+        // Fade out fully then remove
         if (!show)
         {
-            FlxTween.tween(instance, {alpha: 0}, 0.5, {
-                onComplete: _ -> {
-                    instance.kill();
-                }
+            FlxTween.tween(instance, {currentAlpha:0}, 0.5, {
+                onComplete: _ -> instance.kill()
             });
         }
     }

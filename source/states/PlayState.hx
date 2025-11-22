@@ -810,7 +810,6 @@ class PlayState extends MusicBeatState
 		preloadTasks.push(() -> {
 				FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 				FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
-			}
 
 			Paths.clearUnusedMemory();
 

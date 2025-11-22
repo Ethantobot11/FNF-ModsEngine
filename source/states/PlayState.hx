@@ -342,6 +342,8 @@ class PlayState extends MusicBeatState
 			// String that contains the mode defined here so it isn't necessary to call changePresence for each mode
 			if (isStoryMode)
 				detailsText = "Story Mode: " + WeekData.getCurrentWeek().weekName;
+			else if (isFreeplay)
+				detailsText = "Freeplay: " + WeekData.getCurrentWeek().weekName;
 			}
 
 			// String for when the game is paused

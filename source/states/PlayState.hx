@@ -458,7 +458,6 @@ class PlayState extends MusicBeatState
 					case 'schoolEvil': new states.stages.SchoolEvil(); // Week 6 - Thorns
 					case 'tank': new states.stages.Tank(); // Week 7 - Ugh, Guns, Stress
 				}
-			}
 
 			if (isPixelStage) {
 				introSoundsSuffix = '-pixel';

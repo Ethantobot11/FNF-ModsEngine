@@ -309,4 +309,15 @@ class ClientPrefs {
 		FlxG.sound.volumeDownKeys = (!Controls.instance.mobileC && turnOn) ? TitleState.volumeDownKeys : emptyArray;
 		FlxG.sound.volumeUpKeys = (!Controls.instance.mobileC && turnOn) ? TitleState.volumeUpKeys : emptyArray;
 	}
+	public static function isDebug() {
+		#if debug
+		return true;
+		#end
+
+		if (PlayState.chartingMode)
+			return true;
+		
+		return data?.debugMode ?? false;
+	}
+
 }

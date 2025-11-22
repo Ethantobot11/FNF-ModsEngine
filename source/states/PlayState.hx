@@ -619,6 +619,24 @@ class PlayState extends MusicBeatState
 			noteGroup.cameras = [camHUD];
 			comboGroup.cameras = [camHUD];
 		});
+		function fullComboUpdate()
+	    {
+		var sicks:Int = ratingsData[0].hits;
+		var goods:Int = ratingsData[1].hits;
+		var bads:Int = ratingsData[2].hits;
+		var shits:Int = ratingsData[3].hits;
+
+		ratingFC = 'Clear';
+		if(songMisses < 1)
+		{
+			if (shits > 0) ratingFC = 'NM';
+			else if (bads > 0) ratingFC = 'FC';
+			else if (goods > 0) ratingFC = 'GFC';
+			else if (sicks > 0) ratingFC = 'SFC';
+		}
+		else if (songMisses < 10)
+			ratingFC = 'SDCB'; // what the fuck is SDCB
+	    }
 
 		preloadTasks.push(() -> {
 			Conductor.songPosition = -5000 / Conductor.songPosition;

@@ -6,6 +6,7 @@ import backend.WeekData;
 import backend.Song;
 import backend.Section;
 import backend.Rating;
+import backend.StageData;
 import objects.LoadingScreen;
 
 import flixel.addons.util.FlxAsyncLoop;
@@ -100,6 +101,43 @@ class PlayState extends MusicBeatState
 		['Sick!', 1], //From 90% to 99%
 		['Perfect!!', 1] //The value on this one isn't used actually, since Perfect is always "1"
 	];
+
+	var singAnimationsMap = [
+		'4k' => ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'],
+		'5k' => ['singLEFT', 'singDOWN', 'singDOWN', 'singUP', 'singRIGHT'],
+		'6k' => ['singLEFT', 'singDOWN', 'singRIGHT', 'singLEFT', 'singUP', 'singRIGHT'],
+		'7k' => ['singLEFT', 'singDOWN', 'singRIGHT', 'singDOWN', 'singLEFT', 'singUP', 'singRIGHT'],
+		'8k' => ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT', 'singLEFT', 'singDOWN', 'singUP', 'singRIGHT'],
+		'9k' => ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT', 'singDOWN', 'singLEFT', 'singDOWN', 'singUP', 'singRIGHT']
+	];
+	public var grpHoldSplashes:FlxTypedGroup<SustainSplash>;
+
+	public static function loadSongFromSwag(v:SwagSong):SwagSong {
+		RAW_SONG = haxe.Json.stringify(v);
+		return SONG = Song.parseRawJSON('', RAW_SONG);
+	}
+	public var songId:String = null;
+	var stageModDir:String;
+	var oldModDir:String;
+	var showTime:Bool;
+	var camPos:FlxPoint;
+	var stageExists:Bool = false;
+	public static var orderOffset:Int = 0;
+	public static var isErect:Bool = false;
+	public var healthBar:HealthBar;
+	public var precacheList:Map<String, String> = new Map<String, String>();
+	public var strumLineNotes:FlxTypedGroup<StrumNote>;
+	public var opponentStrums:FlxTypedGroup<StrumNote>;
+	public var playerStrums:FlxTypedGroup<StrumNote>;
+	public var grpHoldSplashes:FlxTypedGroup<SustainSplash>;
+	public var grpNoteSplashes:FlxTypedGroup<NoteSplash>
+	public function updateScoreSelf(?miss:Bool = false) {
+		RecalculateRating(miss);
+	}
+	var scoreTxtOriginY:Float = 700;
+	public var iconP1s:Array<HealthIcon> = [];
+	public var iconP2s:Array<HealthIcon> = [];
+
 
 	//event variables
 	private var isCameraOnForcedPos:Bool = false;
@@ -284,6 +322,7 @@ class PlayState extends MusicBeatState
     public var camLoading:FlxCamera;
     var asyncLoop:FlxAsyncLoop;
     var isCreated:Bool = false;
+	var stageData:StageFile;
 
     override public function create():Void {
     super.create();
@@ -308,8 +347,6 @@ class PlayState extends MusicBeatState
 			instakillOnMiss = ClientPrefs.getGameplaySetting('instakill');
 			practiceMode = ClientPrefs.getGameplaySetting('practice');
 			cpuControlled = ClientPrefs.getGameplaySetting('botplay');
-			opponentMode = ClientPrefs.getGameplaySetting('opponentplay');
-			noBadNotes = ClientPrefs.getGameplaySetting('nobadnotes');
 			if (singAnimationsMap.exists(ClientPrefs.getGameplaySetting('mania'))) {
 				maniaModifier = Std.parseInt(ClientPrefs.getGameplaySetting('mania').split('k')[0]);
 			}
@@ -468,10 +505,6 @@ class PlayState extends MusicBeatState
 				skinsSuffix = '-christmas';
 			}
 
-			if (!isPixelStage && ClientPrefs.data.modSkin != null && ClientPrefs.data.modSkin[1].startsWith('pico') && SONG.gfVersion.startsWith('gf')) {
-				SONG.gfVersion = 'nene' + skinsSuffix;
-			}
-
 			if(stageData.objects != null && stageData.objects.length > 0)
 			{
 				var list:Map<String, FlxSprite> = StageData.addObjectsToState(stageData.objects, !stageData.hide_girlfriend ? gfGroup : null, dadGroup, boyfriendGroup, this);
@@ -495,7 +528,7 @@ class PlayState extends MusicBeatState
 	    // "GLOBAL" SCRIPTS
 		#if LUA_ALLOWED
 		preloadTasks.push(() -> {
-			var foldersToCheck:Array<String> = Mods.directoriesWithFile(Paths.getPreloadPath(), 'scripts/');
+			var foldersToCheck:Array<String> = Mods.directoriesWithFile(Paths.getSharedPath(), 'scripts/');
 			for (folder in foldersToCheck)
 				for (file in FileSystem.readDirectory(folder))
 				{

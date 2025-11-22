@@ -28,6 +28,13 @@ typedef SwagSong =
 
 	@:optional var arrowSkin:String;
 	@:optional var splashSkin:String;
+
+	//MOD SPECIFIC
+	@:optional var mania:Null<Int>;
+	@:optional var keyCount:Null<Int>;
+
+	//psych engine 1.0
+	@:optional var format:String;
 }
 
 class Song
@@ -90,6 +97,83 @@ class Song
 		this.bpm = bpm;
 	}
 
+	public static function loadRawSong(jsonInput:String, ?folder:String):String {
+		var rawJson = null;
+
+		var formattedFolder:String = Paths.formatToSongPath(folder);
+		var formattedSong:String = Paths.formatToSongPath(jsonInput);
+		#if MODS_ALLOWED
+		var moddyFile:String = Paths.modsJson(formattedFolder + '/' + formattedSong);
+		if (FileSystem.exists(moddyFile)) {
+			rawJson = File.getContent(moddyFile).trim();
+		}
+		#end
+
+		if (rawJson == null) {
+			#if sys
+			if (FileSystem.exists(Paths.json(formattedFolder + '/' + formattedSong)))
+				rawJson = File.getContent(Paths.json(formattedFolder + '/' + formattedSong));
+			#else
+			rawJson = Assets.getText(Paths.json(formattedFolder + '/' + formattedSong));
+			#end
+
+			if (rawJson == null) {
+				throw new haxe.Exception("Missing file: " + Paths.json(formattedFolder + '/' + formattedSong));
+			}
+
+			rawJson = rawJson.trim();
+		}
+
+		while (!rawJson.endsWith("}")) {
+			rawJson = rawJson.substr(0, rawJson.length - 1);
+			// LOL GOING THROUGH THE BULLSHIT TO CLEAN IDK WHATS STRANGE
+		}
+
+		return rawJson;
+	}
+	return parseRawJSON(jsonInput, loadRawSong(jsonInput, folder));
+	}
+
+	public static function parseRawJSON(jsonInput:String, rawSONG:String) {
+		var songJson:Dynamic = parseJSONshit(rawSONG);
+		if(!jsonInput.startsWith('events')) StageData.loadDirectory(songJson);
+		onLoadJson(songJson);
+		return songJson;
+	}
+
+	public static function parseJSONshit(rawJson:String):SwagSong
+	{
+		var parsed:Dynamic = Json.parse(rawJson);
+		
+		if (parsed.song != null) {
+			if (Std.isOfType(parsed.song, String)) {
+				parsed.format ??= 'psych_v1';
+				return parsed;
+			}
+			
+			parsed.song.format = 'psych_legacy';
+			return parsed.song;
+		}
+		
+		if (parsed.events != null) {
+			return {
+				events: cast parsed.events,
+				song: "",
+				notes: [],
+				bpm: 0,
+				needsVoices: true,
+				speed: 1,
+				player1: "",
+				player2: "",
+				gfVersion: "",
+				stage: "",
+				format: 'psych_legacy'
+			};
+		}
+
+		throw new haxe.Exception("No song data found, or is invalid.");
+	}
+
 	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong
 	{
 		var rawJson = null;
@@ -145,5 +229,34 @@ class Song
 	public static function parseJSONshit(rawJson:String):SwagSong
 	{
 		return cast Json.parse(rawJson).song;
+	}
+    public static function updateManiaKeys(songData:SwagSong):Int {
+		var keys = null;
+
+		if (songData.mania != null)
+			if ((songData.format ?? '').startsWith('psych_v1') || (songData.splashSkin != null)) {
+				keys = songData.mania + 1;
+			}
+			else {
+				switch (songData.mania) {
+					case 0: // 4k
+						keys = 4;
+					case 4: // 5k
+						keys = 5;
+					case 1, 5, 6: // 6k
+						keys = 6;
+					case 2, 7: // 7k
+						keys = 7;
+					case 3, 8: // 9k
+						keys = 9;
+					default:
+						keys = songData.mania;
+				}
+			}
+
+		if (keys == null && songData.keyCount != null)
+			keys = songData.keyCount;
+
+		return Note.maniaKeys = keys ?? 4;
 	}
 }

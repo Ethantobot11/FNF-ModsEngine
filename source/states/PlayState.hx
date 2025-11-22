@@ -280,66 +280,577 @@ class PlayState extends MusicBeatState
 	#if mobile
 	public var luaTouchPad:TouchPad;
 	#end
-
-	var preloadTasks:Array<Void->Void>;
+		
+    public var camLoading:FlxCamera;
     var asyncLoop:FlxAsyncLoop;
-    public var precacheList:Map<String, String> = new Map<String, String>();
     var isCreated:Bool = false;
 
     override public function create():Void {
     super.create();
 
-    // ---- Create dedicated loading camera ----
-	var camLoading = new FlxCamera();
-	camLoading.bgColor = 0x00000000;
-	FlxG.cameras.add(camLoading, false);
-
-	// ---- Create loading UI ----
-	var loaderGroup = new LoadingScreen();
-	loaderGroup.cameras = [camLoading];
-	add(loaderGroup);
-	LoadingScreen.toggle(true);
-
 	// ---- Generate preload tasks ----
-	preloadTasks = [
-  	  () -> cacheCountdown(),
-   	  () -> cachePopUpScore(),
-      () -> {
-       	 for (key => type in precacheList) {
-           	 switch(type) {
-                case "image": Paths.image(key);
-                case "sound": Paths.sound(key);
-                case "music": Paths.music(key);
-            }
-        }
-    }
-];
+	var preloadTasks:Array<Void->Void> = [];
+		
+	preloadTasks.push(() -> {
+			// for lua
+			instance = this;
 
-	var totalTasks = preloadTasks.length;
+			PauseSubState.songName = null; // Reset to default
+			playbackRate = ClientPrefs.getGameplaySetting('songspeed');
+			fullComboFunction = fullComboUpdate;
 
-	// ---- Async loop handling ----
-	asyncLoop = new FlxAsyncLoop(totalTasks, () -> {
-    preloadTasks.shift()();
+			if (FlxG.sound.music != null)
+				FlxG.sound.music.stop();
 
-    if (preloadTasks.length <= 0 && !isCreated) {
-        isCreated = true;
+			// Gameplay settings
+			healthGain = ClientPrefs.getGameplaySetting('healthgain');
+			healthLoss = ClientPrefs.getGameplaySetting('healthloss');
+			instakillOnMiss = ClientPrefs.getGameplaySetting('instakill');
+			practiceMode = ClientPrefs.getGameplaySetting('practice');
+			cpuControlled = ClientPrefs.getGameplaySetting('botplay');
+			opponentMode = ClientPrefs.getGameplaySetting('opponentplay');
+			noBadNotes = ClientPrefs.getGameplaySetting('nobadnotes');
+			if (singAnimationsMap.exists(ClientPrefs.getGameplaySetting('mania'))) {
+				maniaModifier = Std.parseInt(ClientPrefs.getGameplaySetting('mania').split('k')[0]);
+			}
+		});
+		preloadTasks.push(() -> {
+			grpHoldSplashes = new FlxTypedGroup<SustainSplash>();
+			grpNoteSplashes = new FlxTypedGroup<NoteSplash>();
 
-        // Remove loader screen
-        LoadingScreen.toggle(false);
+			persistentUpdate = true;
+			persistentDraw = true;
+		});
 
-        FlxTween.tween(camLoading, {alpha: 0}, 0.5, {
-            ease: FlxEase.circOut,
-            onComplete: t -> {
-                FlxG.cameras.remove(camLoading, true);
-            }
-        });
+		preloadTasks.push(() -> {
+			if (SONG == null)
+				loadSong('tutorial');
 
-        startSong();
-  		}
-	}, 1);
+			Conductor.mapBPMChanges(SONG);
+			Conductor.bpm = SONG.bpm;
 
-		// Add async loop so it updates
-		add(asyncLoop);
+			songId = FreeplayState.filterCharacters(PlayState.SONG.song) + "-" +
+				FreeplayState.filterCharacters(Difficulty.getString()) + "-" + 
+				FreeplayState.filterCharacters(Md5.encode(PlayState.RAW_SONG))
+			;
+
+			#if DISCORD_ALLOWED
+			storyDifficultyText = Difficulty.getString();
+			#end
+
+			#if DISCORD_ALLOWED
+			// String that contains the mode defined here so it isn't necessary to call changePresence for each mode
+			if (isStoryMode)
+				detailsText = "Story Mode: " + WeekData.getCurrentWeek().weekName;
+				else
+					detailsText = "Freeplay";
+			}
+
+			// String for when the game is paused
+			detailsPausedText = "Paused - " + detailsText;
+			#end
+
+			GameOverSubstate.resetVariables();
+			songName = Paths.formatToSongPath(SONG.song);
+		});
+
+		preloadTasks.push(() -> {
+			stageModDir = Mods.currentModDirectory; // thats a big woops 
+			oldModDir = Mods.currentModDirectory;
+
+			var swagStage = SONG.stage;
+
+			if (swagStage == null || swagStage.length < 1) {
+				swagStage = StageData.vanillaSongStage(songName);
+			}
+
+			if ((isErect || (SONG.song.endsWith(' Pico'))) && ( //sorry
+				swagStage == 'stage' ||
+				swagStage == 'spooky' ||
+				swagStage == 'philly' ||
+				swagStage == 'limo' ||
+				swagStage == 'mall' ||
+				swagStage == 'school' ||
+				swagStage == 'tank'
+			)) {
+				swagStage = swagStage + '-erect';
+			}
+			curStage = swagStage;
+
+			stageData = StageData.getStageFile(curStage);
+			if (stageData == null) { // Stage couldn't be found, create a dummy stage for preventing a crash
+				stageData = StageData.dummy();
+			}
+
+			Mods.currentModDirectory = oldModDir;
+			Paths.setCurrentLevel(stageData.directory);
+
+			defaultCamZoom = stageData.defaultZoom;
+
+			stageUI = "normal";
+			if (stageData.stageUI != null && stageData.stageUI.trim().length > 0)
+				stageUI = stageData.stageUI;
+			else {
+				if (stageData.isPixelStage)
+					stageUI = "pixel";
+			}
+
+			BF_X = stageData.boyfriend[0];
+			BF_Y = stageData.boyfriend[1];
+			GF_X = stageData.girlfriend[0];
+			GF_Y = stageData.girlfriend[1];
+			DAD_X = stageData.opponent[0];
+			DAD_Y = stageData.opponent[1];
+
+			if (stageData.camera_speed != null)
+				cameraSpeed = stageData.camera_speed;
+
+			boyfriendCameraOffset = stageData.camera_boyfriend;
+			if (boyfriendCameraOffset == null) // Fucks sake should have done it since the start :rolling_eyes:
+				boyfriendCameraOffset = [0, 0];
+
+			opponentCameraOffset = stageData.camera_opponent;
+			if (opponentCameraOffset == null)
+				opponentCameraOffset = [0, 0];
+
+			girlfriendCameraOffset = stageData.camera_girlfriend;
+			if (girlfriendCameraOffset == null)
+				girlfriendCameraOffset = [0, 0];
+		});
+		preloadTasks.push(() -> {
+			if(stageData != null && stageData.preload != null)
+			{
+				for (asset in Reflect.fields(stageData.preload))
+				{
+					var filters:Int = Reflect.field(stageData.preload, asset);
+					var asset:String = asset.trim();
+
+					if(filters < 0 || StageData.validateVisibility(filters))
+					{
+						if(asset.startsWith('images/'))
+							precacheList.set(asset.substr('images/'.length), 'image');
+						else if(asset.startsWith('sounds/'))
+							precacheList.set(asset.substr('sounds/'.length), 'sound');
+						else if(asset.startsWith('music/'))
+							precacheList.set(asset.substr('music/'.length), 'music');
+					}
+				}
+			}
+		});
+
+		preloadTasks.push(() -> {
+			boyfriendGroup = new FlxSpriteGroup(BF_X, BF_Y);
+			dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
+			gfGroup = new FlxSpriteGroup(GF_X, GF_Y);
+		});
+		preloadTasks.push(() -> {
+				switch (curStage) {
+					case 'stage': new states.stages.StageWeek1(); // Week 1
+					case 'spooky': new states.stages.Spooky(); // Week 2
+					case 'philly': new states.stages.Philly(); // Week 3
+					case 'limo': new states.stages.Limo(); // Week 4
+					case 'mall': new states.stages.Mall(); // Week 5 - Cocoa, Eggnog
+					case 'mallEvil': new states.stages.MallEvil(); // Week 5 - Winter Horrorland
+					case 'school': new states.stages.School(); // Week 6 - Senpai, Roses
+					case 'schoolEvil': new states.stages.SchoolEvil(); // Week 6 - Thorns
+					case 'tank': new states.stages.Tank(); // Week 7 - Ugh, Guns, Stress
+				}
+			}
+
+			if (isPixelStage) {
+				introSoundsSuffix = '-pixel';
+				skinsSuffix = '-pixel';
+			}
+			
+			if (curStage.startsWith('mall')) {
+				skinsSuffix = '-christmas';
+			}
+
+			if (!isPixelStage && ClientPrefs.data.modSkin != null && ClientPrefs.data.modSkin[1].startsWith('pico') && SONG.gfVersion.startsWith('gf')) {
+				SONG.gfVersion = 'nene' + skinsSuffix;
+			}
+
+			if(stageData.objects != null && stageData.objects.length > 0)
+			{
+				var list:Map<String, FlxSprite> = StageData.addObjectsToState(stageData.objects, !stageData.hide_girlfriend ? gfGroup : null, dadGroup, boyfriendGroup, this);
+				for (key => spr in list)
+					if(!StageData.reservedNames.contains(key))
+						modchartSprites.set(key, spr);
+			}
+			else
+			{
+				add(gfGroup);
+				add(dadGroup);
+				add(boyfriendGroup);
+			}
+
+			#if LUA_ALLOWED
+			luaDebugGroup = new FlxTypedGroup<DebugLuaText>();
+			luaDebugGroup.cameras = [camOther];
+			add(luaDebugGroup);
+			#end
+		});
+	    // "GLOBAL" SCRIPTS
+		#if LUA_ALLOWED
+		preloadTasks.push(() -> {
+			var foldersToCheck:Array<String> = Mods.directoriesWithFile(Paths.getPreloadPath(), 'scripts/');
+			for (folder in foldersToCheck)
+				for (file in FileSystem.readDirectory(folder))
+				{
+					if(file.toLowerCase().endsWith('.lua'))
+						new FunkinLua(folder + file);
+					#if HSCRIPT_ALLOWED
+					if(file.toLowerCase().endsWith('.hx'))
+						initHScript(folder + file);
+					#end
+				}
+		});
+		#end
+
+		// STAGE SCRIPTS
+		#if LUA_ALLOWED
+		preloadTasks.push(() -> {
+			oldModDir = Mods.currentModDirectory;
+			
+			Mods.currentModDirectory = stageModDir;
+			if (startLuasNamed('stages/' + curStage + '.lua'))
+				stageExists = true;
+
+			Mods.currentModDirectory = oldModDir;
+		});
+		#end
+
+		#if HSCRIPT_ALLOWED
+		preloadTasks.push(() -> {
+			oldModDir = Mods.currentModDirectory;
+
+			Mods.currentModDirectory = stageModDir;
+			if (startHScriptsNamed('stages/' + curStage + '.hx'))
+				stageExists = true;
+
+			Mods.currentModDirectory = oldModDir;
+		});
+		#end
+
+		preloadTasks.push(() -> {
+			oldModDir = Mods.currentModDirectory;
+
+			if (!stageData.hide_girlfriend)
+			{
+				if (SONG.gfVersion == 'nene' || SONG.gfVersion == 'nene-christmas' || SONG.gfVersion == 'nene-pixel' || SONG.gfVersion == 'otis-speaker') {
+					abot = new ABotSpeaker(-30, 310, curStage == 'spooky-erect', isPixelStage);
+					updateABotEye(true);
+					gfGroup.add(abot);
+				}
+				
+				if (SONG.gfVersion == null || SONG.gfVersion.length < 1) {
+					SONG.gfVersion = isPixelStage ? 'gf-pixel' : 'gf';
+				}
+
+				if (!SONG.gfVersion.startsWith('nene'))
+					gf = new Character(0, 0, SONG.gfVersion, false, false, 'gf');
+				else
+					gf = new Nene(0, 0, SONG.gfVersion, false, false, 'gf');
+				startCharacterPos(gf);
+				gf.scrollFactor.set(0.95, 0.95);
+				gfGroup.add(gf);
+				startCharacterScripts(gf.curCharacter);
+			}
+		});
+        preloadTasks.push(() -> {
+			camPos = FlxPoint.get(girlfriendCameraOffset[0], girlfriendCameraOffset[1]);
+			if (gf != null) {
+				camPos.x += gf.getGraphicMidpoint().x + gf.cameraPosition[0];
+				camPos.y += gf.getGraphicMidpoint().y + gf.cameraPosition[1];
+			}
+
+			if (dad.curCharacter.startsWith('gf') && Paths.formatToSongPath(SONG.song) == 'tutorial') {
+				dad.setPosition(GF_X, GF_Y);
+				if (gf != null)
+					gf.visible = false;
+			}
+			stagesFunc(function(stage:BaseStage) stage.createPost());
+		});
+
+		preloadTasks.push(() -> {
+			comboGroup = new FlxSpriteGroup();
+			add(comboGroup);
+			noteGroup = new FlxTypedGroup<FlxBasic>();
+			add(noteGroup);
+			uiGroup = new FlxSpriteGroup();
+			add(uiGroup);
+
+			uiGroup.cameras = [camHUD];
+			noteGroup.cameras = [camHUD];
+			comboGroup.cameras = [camHUD];
+		});
+
+		preloadTasks.push(() -> {
+			Conductor.songPosition = -5000 / Conductor.songPosition;
+			showTime = (ClientPrefs.data.timeBarType != 'Disabled');
+			timeTxt = new FlxText(0, 19, FlxG.width, "", 32);
+			timeTxt.setFormat(!isPixelStage ? Paths.font("vcr.ttf") : 'Pixel Arial 11 Bold', !isPixelStage ? 32 : 28, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+			timeTxt.scrollFactor.set();
+			timeTxt.alpha = 0;
+			timeTxt.borderSize = 2;
+			timeTxt.visible = updateTime = showTime;
+			if(ClientPrefs.data.downScroll) timeTxt.y = FlxG.height - 44;
+			if(ClientPrefs.data.timeBarType == 'Song Name') timeTxt.text = SONG.song;
+		});
+
+		preloadTasks.push(() -> {
+			timeBar = new HealthBar(0, timeTxt.y + (timeTxt.height / 4), 'timeBar', function() return songPercent, 0, 1);
+			timeBar.scrollFactor.set();
+			timeBar.screenCenter(X);
+			timeBar.alpha = 0;
+			timeBar.visible = showTime;
+			uiGroup.add(timeBar);
+			uiGroup.add(timeTxt);
+		});
+
+		preloadTasks.push(() -> {
+			if (ClientPrefs.data.noteUnderlayOpacity > 0) {
+				noteUnderlays = new FlxTypedGroup<FlxSprite>();
+				noteGroup.add(noteUnderlays);
+			}
+
+			strumLineNotes = new FlxTypedGroup<StrumNote>();
+			noteGroup.add(strumLineNotes);
+			noteGroup.add(grpHoldSplashes);
+			noteGroup.add(grpNoteSplashes);
+
+			opponentStrums = new FlxTypedGroup<StrumNote>();
+			playerStrums = new FlxTypedGroup<StrumNote>();
+
+			generateSong(SONG.song);
+			keysArray = getKeysArray(Note.maniaKeys);
+
+			for (key in keysArray) {
+				// for (bind in controls.keyboardBinds['taunt']) {
+					if (controls.keyboardBinds[key].contains(FlxKey.SPACE)) {
+						canSpaceTaunt = false;
+					}
+				// }
+			}
+		});
+
+		preloadTasks.push(() -> {
+			var splash:NoteSplash = new NoteSplash(100, 100);
+			grpNoteSplashes.add(splash);
+			splash.alpha = 0.0001; //cant make it invisible or it won't allow precaching
+
+			SustainSplash.startCrochet = Conductor.stepCrochet;
+			SustainSplash.frameRate = Math.floor(24 / 100 * SONG.bpm);
+			var splash:SustainSplash = new SustainSplash();
+			grpHoldSplashes.add(splash);
+			splash.visible = true;
+			splash.alpha = 0.0001;
+		});
+
+		preloadTasks.push(() -> {
+			camFollow = new FlxObject(0, 0, 1, 1);
+			camFollow.setPosition(camPos.x, camPos.y);
+			camPos.put();
+					
+			if (prevCamFollow != null)
+			{
+				camFollow = prevCamFollow;
+				prevCamFollow = null;
+			}
+			add(camFollow);
+
+			FlxG.camera.follow(camFollow, LOCKON, 0);
+			FlxG.camera.zoom = defaultCamZoom;
+			FlxG.camera.snapToTarget();
+
+			FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
+			moveCameraSection();
+		});
+
+		preloadTasks.push(() -> {
+			healthBar = new HealthBar(0, FlxG.height * (!ClientPrefs.data.downScroll ? 0.89 : 0.11), 'healthBar', function() return health, 0, 2);
+			healthBar.screenCenter(X);
+			healthBar.leftToRight = false;
+			healthBar.scrollFactor.set();
+			healthBar.visible = !ClientPrefs.data.hideHud;
+			healthBar.alpha = ClientPrefs.data.healthBarAlpha;
+			reloadHealthBarColors();
+			uiGroup.add(healthBar);
+
+			for (icon in [].concat(iconP1s).concat(iconP2s)) {
+				icon.visible = !ClientPrefs.data.hideHud;
+				icon.alpha = ClientPrefs.data.healthBarAlpha;
+				uiGroup.add(icon);
+			}
+		});
+
+		preloadTasks.push(() -> {
+			scoreTxtOriginY = ClientPrefs.data.downScroll ? 120 : 700;
+			
+			scoreTxt = new FlxText(0, healthBar.y + 40, FlxG.width, "", 20);
+			scoreTxt.setFormat(!isPixelStage ? Paths.font("vcr.ttf") : 'Pixel Arial 11 Bold', !isPixelStage ? 20 : 18, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+			scoreTxt.scrollFactor.set();
+			scoreTxt.borderSize = 1.25;
+			scoreTxt.visible = !ClientPrefs.data.hideHud;
+			uiGroup.add(scoreTxt);
+		});
+		#if LUA_ALLOWED
+		preloadTasks.push(() -> {
+			for (notetype in noteTypes)
+				startLuasNamed('custom_notetypes/' + notetype + '.lua');
+		});
+
+		preloadTasks.push(() -> {
+			for (event in eventsPushed)
+				startLuasNamed('custom_events/' + event + '.lua');
+		});
+		#end
+
+		#if HSCRIPT_ALLOWED
+		preloadTasks.push(() -> {
+			for (notetype in noteTypes)
+				startHScriptsNamed('custom_notetypes/' + notetype + '.hx');
+		});
+
+		preloadTasks.push(() -> {
+			for (event in eventsPushed)
+				startHScriptsNamed('custom_events/' + event + '.hx');
+		});
+		#end
+
+		preloadTasks.push(() -> {
+			noteTypes = null;
+			eventsPushed = null;
+
+			if(eventNotes.length > 1)
+			{
+				for (event in eventNotes) event.strumTime -= eventEarlyTrigger(event);
+				eventNotes.sort(sortByTime);
+			}
+		});
+
+		// SONG SPECIFIC SCRIPTS
+		#if LUA_ALLOWED
+		preloadTasks.push(() -> {
+			var foldersToCheck:Array<String> = Mods.directoriesWithFile(Paths.getPreloadPath(), 'data/' + songName + '/');
+			for (folder in foldersToCheck)
+				for (file in FileSystem.readDirectory(folder)) {
+					if (file.toLowerCase().endsWith('.lua'))
+						new FunkinLua(folder + file);
+					#if HSCRIPT_ALLOWED
+					if (file.toLowerCase().endsWith('.hx'))
+						initHScript(folder + file);
+					#end
+				}
+		});
+		#end
+
+		preloadTasks.push(() -> {
+			updateScoreSelf();
+			// RecalculateRating();
+			// if (GameClient.isConnected())
+			// 	RecalculateRatingOpponent();
+		});
+
+		preloadTasks.push(() -> {
+			//PRECACHING MISS SOUNDS BECAUSE I THINK THEY CAN LAG PEOPLE AND FUCK THEM UP IDK HOW HAXE WORKS
+			if(ClientPrefs.data.hitsoundVolume > 0) precacheList.set('hitsound', 'sound');
+			precacheList.set('missnote1', 'sound');
+			precacheList.set('missnote2', 'sound');
+			precacheList.set('missnote3', 'sound');
+
+			if (PauseSubState.songName != null) {
+				precacheList.set(PauseSubState.songName, 'music');
+			} else if(ClientPrefs.data.pauseMusic != 'None') {
+				precacheList.set(Paths.formatToSongPath(ClientPrefs.data.pauseMusic), 'music');
+			}
+
+			precacheList.set('alphabet', 'image');
+			resetRPC();
+		});
+
+		preloadTasks.push(() -> {
+			#if LUA_ALLOWED
+			for (_ in modchartSprites) {
+				stageExists = true;
+				break;
+			}
+			#end
+
+			if (!stageExists) {
+				Sys.println("STAGE IS EMPTY");
+				var prevLevel = Paths.currentLevel;
+				Paths.setCurrentLevel("week1");
+				//new online.OnlineStage();
+				Paths.setCurrentLevel(prevLevel);
+			}
+		});
+
+		preloadTasks.push(() -> {
+			cacheCountdown();
+			cachePopUpScore();
+			
+			for (key => type in precacheList)
+			{
+				//trace('Key $key is type $type');
+				switch(type)
+				{
+					case 'image':
+						Paths.image(key);
+					case 'sound':
+						Paths.sound(key);
+					case 'music':
+						Paths.music(key);
+				}
+			}
+		});
+
+		preloadTasks.push(() -> {
+				FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
+				FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
+
+				if (!ClientPrefs.data.disableReplays && !isInvalidScore() && !chartingMode) {
+				}
+			}
+
+			if (!ClientPrefs.data.disableSongComments != null && songId != null) {
+				nicomments = new NicommentsView(songId);
+				nicomments.cameras = [camOther];
+				add(nicomments);
+			}
+
+			Paths.clearUnusedMemory();
+
+			CustomFadeTransition.nextCamera = camOther;
+			if (eventNotes.length < 1)
+				checkEventNote();
+		});
+
+
+	    var loaderGroup = new objects.LoadingSprite(preloadTasks.length, camLoading);
+		add(loaderGroup);
+		
+		asyncLoop = new FlxAsyncLoop(preloadTasks.length, () -> {
+			preloadTasks.shift()();
+
+			loaderGroup.addProgress(preloadTasks.length);
+
+			if (preloadTasks.length <= 0) {
+				isCreated = true;
+
+				FlxTween.tween(camLoading, {alpha: 0}, 0.5, {ease: FlxEase.circOut, onComplete: t -> {
+					loaderGroup.killMembers();
+					FlxG.cameras.remove(camLoading, true);
+				}});
+
+				startCallback();
+				callOnScripts('onCreatePost');
+				registerMessages();
+			}
+		}, 1);
+		loaderGroup.add(asyncLoop);
+		orderOffset = 2;
+		super.create();
 		Paths.clearStoredMemory();
 
 		startCallback = startCountdown;
@@ -374,6 +885,7 @@ class PlayState extends MusicBeatState
 		camHUD = new FlxCamera();
 		camOther = new FlxCamera();
 		luaTpadCam = new FlxCamera();
+		camLoading = new FlxCamera();
 		camHUD.bgColor.alpha = 0;
 		camOther.bgColor.alpha = 0;
 		luaTpadCam.bgColor.alpha = 0;

@@ -810,15 +810,6 @@ class PlayState extends MusicBeatState
 		preloadTasks.push(() -> {
 				FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 				FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
-
-				if (!ClientPrefs.data.disableReplays && !isInvalidScore() && !chartingMode) {
-				}
-			}
-
-			if (!ClientPrefs.data.disableSongComments != null && songId != null) {
-				nicomments = new NicommentsView(songId);
-				nicomments.cameras = [camOther];
-				add(nicomments);
 			}
 
 			Paths.clearUnusedMemory();

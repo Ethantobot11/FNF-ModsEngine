@@ -489,15 +489,6 @@ class PlayState extends MusicBeatState
 					case 'tank': new states.stages.Tank(); // Week 7 - Ugh, Guns, Stress
 				}
 
-			if (isPixelStage) {
-				introSoundsSuffix = '-pixel';
-				skinsSuffix = '-pixel';
-			}
-			
-			if (curStage.startsWith('mall')) {
-				skinsSuffix = '-christmas';
-			}
-
 			if(stageData.objects != null && stageData.objects.length > 0)
 			{
 				var list:Map<String, FlxSprite> = StageData.addObjectsToState(stageData.objects, !stageData.hide_girlfriend ? gfGroup : null, dadGroup, boyfriendGroup, this);
@@ -655,10 +646,6 @@ class PlayState extends MusicBeatState
 		});
 
 		preloadTasks.push(() -> {
-			if (ClientPrefs.data.noteUnderlayOpacity > 0) {
-				noteUnderlays = new FlxTypedGroup<FlxSprite>();
-				noteGroup.add(noteUnderlays);
-			}
 
 			strumLineNotes = new FlxTypedGroup<StrumNote>();
 			noteGroup.add(strumLineNotes);
@@ -684,11 +671,6 @@ class PlayState extends MusicBeatState
 			var splash:NoteSplash = new NoteSplash(100, 100);
 			grpNoteSplashes.add(splash);
 			splash.alpha = 0.0001; //cant make it invisible or it won't allow precaching
-
-			SustainSplash.startCrochet = Conductor.stepCrochet;
-			SustainSplash.frameRate = Math.floor(24 / 100 * SONG.bpm);
-			var splash:SustainSplash = new SustainSplash();
-			grpHoldSplashes.add(splash);
 			splash.visible = true;
 			splash.alpha = 0.0001;
 		});

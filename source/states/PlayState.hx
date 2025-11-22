@@ -111,11 +111,17 @@ class PlayState extends MusicBeatState
 		'9k' => ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT', 'singDOWN', 'singLEFT', 'singDOWN', 'singUP', 'singRIGHT']
 	];
 	public var grpHoldSplashes:FlxTypedGroup<SustainSplash>;
+	public static function loadSong(jsonInput:String, ?folder:String):SwagSong {
+		RAW_SONG = Song.loadRawSong(jsonInput, folder);
+		return SONG = Song.parseRawJSON(jsonInput, RAW_SONG);
+	}
 
 	public static function loadSongFromSwag(v:SwagSong):SwagSong {
 		RAW_SONG = haxe.Json.stringify(v);
 		return SONG = Song.parseRawJSON('', RAW_SONG);
 	}
+	
+	public static var RAW_SONG:String = '';
 	public var songId:String = null;
 	var stageModDir:String;
 	var oldModDir:String;
@@ -340,12 +346,8 @@ class PlayState extends MusicBeatState
 			instakillOnMiss = ClientPrefs.getGameplaySetting('instakill');
 			practiceMode = ClientPrefs.getGameplaySetting('practice');
 			cpuControlled = ClientPrefs.getGameplaySetting('botplay');
-			if (singAnimationsMap.exists(ClientPrefs.getGameplaySetting('mania'))) {
-				maniaModifier = Std.parseInt(ClientPrefs.getGameplaySetting('mania').split('k')[0]);
-			}
 		});
 		preloadTasks.push(() -> {
-			grpHoldSplashes = new FlxTypedGroup<SustainSplash>();
 			grpNoteSplashes = new FlxTypedGroup<NoteSplash>();
 
 			persistentUpdate = true;
@@ -566,10 +568,10 @@ class PlayState extends MusicBeatState
 					SONG.gfVersion = isPixelStage ? 'gf-pixel' : 'gf';
 				}
 
-				if (!SONG.gfVersion.startsWith('nene'))
+				if (!SONG.gfVersion.startsWith('gf'))
 					gf = new Character(0, 0, SONG.gfVersion, false, false, 'gf');
 				else
-					gf = new Nene(0, 0, SONG.gfVersion, false, false, 'gf');
+					gf = new Gf(0, 0, SONG.gfVersion, false, false, 'gf');
 				startCharacterPos(gf);
 				gf.scrollFactor.set(0.95, 0.95);
 				gfGroup.add(gf);
@@ -646,8 +648,6 @@ class PlayState extends MusicBeatState
 		});
 
 		preloadTasks.push(() -> {
-
-			strumLineNotes = new FlxTypedGroup<StrumNote>();
 			noteGroup.add(strumLineNotes);
 			noteGroup.add(grpHoldSplashes);
 			noteGroup.add(grpNoteSplashes);
@@ -656,15 +656,7 @@ class PlayState extends MusicBeatState
 			playerStrums = new FlxTypedGroup<StrumNote>();
 
 			generateSong(SONG.song);
-			keysArray = getKeysArray(Note.maniaKeys);
-
-			for (key in keysArray) {
-				// for (bind in controls.keyboardBinds['taunt']) {
-					if (controls.keyboardBinds[key].contains(FlxKey.SPACE)) {
-						canSpaceTaunt = false;
-					}
 				// }
-			}
 		});
 
 		preloadTasks.push(() -> {

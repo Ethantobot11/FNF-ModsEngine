@@ -81,6 +81,15 @@ class Note extends FlxSprite
 	public var lateHitMult:Float = 1;
 	public var lowPriority:Bool = false;
 
+	public static var maniaKeysList:Array<Int> = [1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 55];
+	public static var maniaKeysStringList:Array<String> = [for (keys in maniaKeysList) '${keys}k'];
+	public static var maniaKeys(default, set):Int = 4;
+	static function set_maniaKeys(v) {
+		maniaKeys = (maniaKeysList.contains(v) ? v : 4);
+		colArray = getColArrayFromKeys();
+		return v;
+	}
+
 	public static var SUSTAIN_SIZE:Int = 44;
 	public static var swagWidth:Float = 160 * 0.7;
 	public static var colArray:Array<String> = ['purple', 'blue', 'green', 'red'];

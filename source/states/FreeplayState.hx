@@ -203,6 +203,16 @@ class FreeplayState extends MusicBeatState
 		super.create();
 	}
 
+	public static function filterCharacters(str:String) {
+		var re = ~/[A-Z]|[a-z]|[0-9]/g;
+		var finalStr = "";
+		for (i in 0...str.length) {
+			if (re.match(str.charAt(i)))
+				finalStr += str.charAt(i);
+		}
+		return finalStr;
+	}
+
 	override function closeSubState() {
 		changeSelection(0, false);
 		persistentUpdate = true;

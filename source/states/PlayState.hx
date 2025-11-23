@@ -143,7 +143,6 @@ class PlayState extends MusicBeatState
 	public var iconP2s:Array<HealthIcon> = [];
 	public var abot:ABotSpeaker;
 	public var gf:Null<Character> = null;
-	public var abot:ABotSpeaker;
 
 
 
@@ -560,11 +559,6 @@ class PlayState extends MusicBeatState
 
 			if (!stageData.hide_girlfriend)
 			{
-				if (SONG.gfVersion == 'nene' || SONG.gfVersion == 'nene-christmas' || SONG.gfVersion == 'nene-pixel' || SONG.gfVersion == 'otis-speaker') {
-					abot = new ABotSpeaker(-30, 310, curStage == 'spooky-erect', isPixelStage);
-					updateABotEye(true);
-					gfGroup.add(abot);
-				}
 				
 				if (SONG.gfVersion == null || SONG.gfVersion.length < 1) {
 					SONG.gfVersion = isPixelStage ? 'gf-pixel' : 'gf';
@@ -640,18 +634,7 @@ class PlayState extends MusicBeatState
 		});
 
 		preloadTasks.push(() -> {
-			timeBar = new HealthBar(0, timeTxt.y + (timeTxt.height / 4), 'timeBar', function() return songPercent, 0, 1);
-			timeBar.scrollFactor.set();
-			timeBar.screenCenter(X);
-			timeBar.alpha = 0;
-			timeBar.visible = showTime;
-			uiGroup.add(timeBar);
-			uiGroup.add(timeTxt);
-		});
-
-		preloadTasks.push(() -> {
 			noteGroup.add(strumLineNotes);
-			noteGroup.add(grpHoldSplashes);
 			noteGroup.add(grpNoteSplashes);
 
 			opponentStrums = new FlxTypedGroup<StrumNote>();
@@ -690,14 +673,6 @@ class PlayState extends MusicBeatState
 		});
 
 		preloadTasks.push(() -> {
-			healthBar = new HealthBar(0, FlxG.height * (!ClientPrefs.data.downScroll ? 0.89 : 0.11), 'healthBar', function() return health, 0, 2);
-			healthBar.screenCenter(X);
-			healthBar.leftToRight = false;
-			healthBar.scrollFactor.set();
-			healthBar.visible = !ClientPrefs.data.hideHud;
-			healthBar.alpha = ClientPrefs.data.healthBarAlpha;
-			reloadHealthBarColors();
-			uiGroup.add(healthBar);
 
 			for (icon in [].concat(iconP1s).concat(iconP2s)) {
 				icon.visible = !ClientPrefs.data.hideHud;

@@ -335,7 +335,6 @@ class PlayState extends MusicBeatState
 
 			PauseSubState.songName = null; // Reset to default
 			playbackRate = ClientPrefs.getGameplaySetting('songspeed');
-			fullComboFunction = fullComboUpdate;
 
 			if (FlxG.sound.music != null)
 				FlxG.sound.music.stop();
@@ -361,7 +360,7 @@ class PlayState extends MusicBeatState
 			Conductor.mapBPMChanges(SONG);
 			Conductor.bpm = SONG.bpm;
 
-			songId = FreeplayState.filterCharacters(PlayState.SONG.song) + "-" +
+			    songId = FreeplayState.filterCharacters(PlayState.SONG.song) + "-" +
 				FreeplayState.filterCharacters(Difficulty.getString()) + "-" + 
 				FreeplayState.filterCharacters(Md5.encode(PlayState.RAW_SONG))
 			;
@@ -568,8 +567,8 @@ class PlayState extends MusicBeatState
 					SONG.gfVersion = isPixelStage ? 'gf-pixel' : 'gf';
 				}
 
-				if (!SONG.gfVersion.startsWith('gf'))
-					gf = new Character(0, 0, SONG.gfVersion, false, false, 'gf');
+				if (!SONG.gfVersion.startsWith('nene'))
+					nene = new Character(0, 0, SONG.gfVersion, false, false, 'gf');
 				else
 					gf = new Gf(0, 0, SONG.gfVersion, false, false, 'gf');
 				startCharacterPos(gf);
@@ -752,7 +751,7 @@ class PlayState extends MusicBeatState
 		// SONG SPECIFIC SCRIPTS
 		#if LUA_ALLOWED
 		preloadTasks.push(() -> {
-			var foldersToCheck:Array<String> = Mods.directoriesWithFile(Paths.getPreloadPath(), 'data/' + songName + '/');
+			var foldersToCheck:Array<String> = Mods.directoriesWithFile(Paths.getSharedPath(), 'data/' + songName + '/');
 			for (folder in foldersToCheck)
 				for (file in FileSystem.readDirectory(folder)) {
 					if (file.toLowerCase().endsWith('.lua'))

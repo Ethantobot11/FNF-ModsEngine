@@ -130,7 +130,6 @@ class PlayState extends MusicBeatState
 	var stageExists:Bool = false;
 	public static var orderOffset:Int = 0;
 	public static var isErect:Bool = false;
-	public var healthBar:HealthBar;
 	public var precacheList:Map<String, String> = new Map<String, String>();
 	public var strumLineNotes:FlxTypedGroup<StrumNote>;
 	public var opponentStrums:FlxTypedGroup<StrumNote>;

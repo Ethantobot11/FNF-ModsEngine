@@ -24,6 +24,7 @@ import lime.utils.Assets;
 import openfl.utils.Assets as OpenFlAssets;
 import openfl.events.KeyboardEvent;
 import haxe.Json;
+import haxe.crypto.Md5;
 
 import cutscenes.CutsceneHandler;
 import cutscenes.DialogueBoxPsych;

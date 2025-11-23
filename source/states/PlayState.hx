@@ -205,7 +205,6 @@ class PlayState extends MusicBeatState
 	public var opponentVocals:FlxSound;
 
 	public var dad:Character = null;
-	public var gf:Character = null;
 	public var boyfriend:Character = null;
 
 	public var notes:FlxTypedGroup<Note>;
@@ -215,7 +214,6 @@ class PlayState extends MusicBeatState
 	public var camFollow:FlxObject;
 	private static var prevCamFollow:FlxObject;
 
-	public var strumLineNotes:FlxTypedGroup<StrumNote>;
 
 	public var camZooming:Bool = false;
 	public var camZoomingMult:Float = 1;
@@ -318,7 +316,9 @@ class PlayState extends MusicBeatState
 	#if mobile
 	public var luaTouchPad:TouchPad;
 	#end
-		
+
+	public var healthBar:Bar;
+	
     public var camLoading:FlxCamera;
     var asyncLoop:FlxAsyncLoop;
     var isCreated:Bool = false;
@@ -375,10 +375,7 @@ class PlayState extends MusicBeatState
 			if (isStoryMode)
 				detailsText = "Story Mode: " + WeekData.getCurrentWeek().weekName;
 			else {
-				if (isFreeplay)
 					detailsText = "playing in Freeplay";
-				else
-					detailsText = "Freeplay";
 			}
 
 			// String for when the game is paused
@@ -493,7 +490,7 @@ class PlayState extends MusicBeatState
 
 			if(stageData.objects != null && stageData.objects.length > 0)
 			{
-				var list:Map<String, FlxSprite> = StageData.addObjectsToState(stageData.objects, !stageData.hide_girlfriend ? gfGroup : null, dadGroup, boyfriendGroup, this);
+				var list:Map<String, ModchartSprite> = StageData.addObjectsToState(stageData.objects, !stageData.hide_girlfriend ? gfGroup : null, dadGroup, boyfriendGroup, this);
 				for (key => spr in list)
 					if(!StageData.reservedNames.contains(key))
 						modchartSprites.set(key, spr);

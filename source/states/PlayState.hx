@@ -111,7 +111,6 @@ class PlayState extends MusicBeatState
 		'8k' => ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT', 'singLEFT', 'singDOWN', 'singUP', 'singRIGHT'],
 		'9k' => ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT', 'singDOWN', 'singLEFT', 'singDOWN', 'singUP', 'singRIGHT']
 	];
-	public var grpHoldSplashes:FlxTypedGroup<SustainSplash>;
 	public static function loadSong(jsonInput:String, ?folder:String):SwagSong {
 		RAW_SONG = Song.loadRawSong(jsonInput, folder);
 		return SONG = Song.parseRawJSON(jsonInput, RAW_SONG);

@@ -143,6 +143,7 @@ class PlayState extends MusicBeatState
 	public var iconP2s:Array<HealthIcon> = [];
 	public var abot:ABotSpeaker;
 	public var gf:Null<Character> = null;
+	public var abot:ABotSpeaker;
 
 
 

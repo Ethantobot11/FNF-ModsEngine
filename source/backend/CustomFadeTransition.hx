@@ -5,6 +5,7 @@ import flixel.FlxSubState;
 
 class CustomFadeTransition extends FlxSubState {
 	public static var finishCallback:Void->Void;
+	public static var nextCamera:FlxCamera;
 	var isTransIn:Bool = false;
 	var transBlack:FlxSprite;
 	var transGradient:FlxSprite;
@@ -40,6 +41,11 @@ class CustomFadeTransition extends FlxSubState {
 			transGradient.y = transBlack.y - transBlack.height;
 		else
 			transGradient.y = -transGradient.height;
+		if(nextCamera != null) {
+			transBlack.cameras = [nextCamera];
+			transGradient.cameras = [nextCamera];
+		}
+		nextCamera = null;
 
 		super.create();
 	}

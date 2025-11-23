@@ -142,6 +142,9 @@ class PlayState extends MusicBeatState
 	var scoreTxtOriginY:Float = 700;
 	public var iconP1s:Array<HealthIcon> = [];
 	public var iconP2s:Array<HealthIcon> = [];
+	public var abot:ABotSpeaker;
+	public var gf:Null<Character> = null;
+
 
 
 	//event variables
@@ -830,7 +833,7 @@ class PlayState extends MusicBeatState
 
 			Paths.clearUnusedMemory();
 
-			CustomFadeTransition.nextCamera = camOther;
+			CustomFadeTransition.nextCamera = camLoading;
 			if (eventNotes.length < 1)
 				checkEventNote();
 		});
@@ -854,7 +857,6 @@ class PlayState extends MusicBeatState
 
 				startCallback();
 				callOnScripts('onCreatePost');
-				registerMessages();
 			}
 		}, 1);
 		loaderGroup.add(asyncLoop);

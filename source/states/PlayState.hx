@@ -141,7 +141,6 @@ class PlayState extends MusicBeatState
 	var scoreTxtOriginY:Float = 700;
 	public var iconP1s:Array<HealthIcon> = [];
 	public var iconP2s:Array<HealthIcon> = [];
-	public var abot:ABotSpeaker;
 	public var gf:Null<Character> = null;
 
 

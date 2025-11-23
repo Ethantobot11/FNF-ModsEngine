@@ -567,6 +567,7 @@ class PlayState extends MusicBeatState
 				gf.scrollFactor.set(0.95, 0.95);
 				gfGroup.add(gf);
 				startCharacterScripts(gf.curCharacter);
+			}
 		});
         preloadTasks.push(() -> {
 			camPos = FlxPoint.get(girlfriendCameraOffset[0], girlfriendCameraOffset[1]);

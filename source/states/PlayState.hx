@@ -561,10 +561,10 @@ class PlayState extends MusicBeatState
 					SONG.gfVersion = isPixelStage ? 'gf-pixel' : 'gf';
 				}
 
-				if (!SONG.gfVersion.startsWith('nene'))
-					nene = new Character(0, 0, SONG.gfVersion, false, false, 'gf');
+				if (!SONG.gfVersion.startsWith('gf'))
+					gf = new Character(0, 0, SONG.gfVersion, false, false, 'gf');
 				else
-					gf = new Gf(0, 0, SONG.gfVersion, false, false, 'gf');
+					gf = new gf(0, 0, SONG.gfVersion, false, false, 'gf');
 				startCharacterPos(gf);
 				gf.scrollFactor.set(0.95, 0.95);
 				gfGroup.add(gf);

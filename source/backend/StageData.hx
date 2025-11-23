@@ -1,7 +1,9 @@
 package backend;
 
+import psychlua.ModchartSprite;
+import json2object.JsonParser;
 import openfl.utils.Assets;
-import haxe.Json;
+import tjson.TJSON as Json;
 import backend.Song;
 
 typedef StageFile = {

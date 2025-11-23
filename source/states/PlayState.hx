@@ -563,13 +563,10 @@ class PlayState extends MusicBeatState
 
 				if (!SONG.gfVersion.startsWith('gf'))
 					gf = new Character(0, 0, SONG.gfVersion, false, false, 'gf');
-				else
-					gf = new gf(0, 0, SONG.gfVersion, false, false, 'gf');
 				startCharacterPos(gf);
 				gf.scrollFactor.set(0.95, 0.95);
 				gfGroup.add(gf);
 				startCharacterScripts(gf.curCharacter);
-			}
 		});
         preloadTasks.push(() -> {
 			camPos = FlxPoint.get(girlfriendCameraOffset[0], girlfriendCameraOffset[1]);

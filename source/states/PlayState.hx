@@ -491,17 +491,30 @@ class PlayState extends MusicBeatState
 
 			if(stageData.objects != null && stageData.objects.length > 0)
 			{
-				var list:Map<String, ModchartSprite> = StageData.addObjectsToState(stageData.objects, !stageData.hide_girlfriend ? gfGroup : null, dadGroup, boyfriendGroup, this);
-				for (key => spr in list)
-					if(!StageData.reservedNames.contains(key))
-						modchartSprites.set(key, spr);
-			}
-			else
-			{
-				add(gfGroup);
-				add(dadGroup);
-				add(boyfriendGroup);
-			}
+    		// Make sure the map type is ModchartSprite, not FlxSprite
+    		var list:Map<String, ModchartSprite> = StageData.addObjectsToState(
+      			  stageData.objects, 
+       			 !stageData.hide_girlfriend ? gfGroup : null, 
+       			 dadGroup, 
+       			 boyfriendGroup, 
+      		  this
+   			 );
+
+    		for (key => spr in list)
+    		{
+        		if(!StageData.reservedNames.contains(key))
+            	modchartSprites.set(key, spr);
+        
+        		// Ensure the sprite gets added to the scene
+        		add(spr);
+    		}
+		}
+		else
+		{
+   				add(gfGroup);
+    			add(dadGroup);
+    			add(boyfriendGroup);
+		}
 
 			#if LUA_ALLOWED
 			luaDebugGroup = new FlxTypedGroup<DebugLuaText>();

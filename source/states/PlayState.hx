@@ -490,31 +490,35 @@ class PlayState extends MusicBeatState
 				}
 
 			if(stageData.objects != null && stageData.objects.length > 0)
-			{
-    		// Make sure the map type is ModchartSprite, not FlxSprite
-    		var list:Map<String, ModchartSprite> = StageData.addObjectsToState(
-      			  stageData.objects, 
-       			 !stageData.hide_girlfriend ? gfGroup : null, 
-       			 dadGroup, 
-       			 boyfriendGroup, 
-      		  this
-   			 );
+{
+    var list:Map<String, FlxSprite> = StageData.addObjectsToState(
+        stageData.objects, 
+        !stageData.hide_girlfriend ? gfGroup : null, 
+        dadGroup, 
+        boyfriendGroup, 
+        this
+    );
 
-    		for (key => spr in list)
-    		{
-        		if(!StageData.reservedNames.contains(key))
-            	modchartSprites.set(key, spr);
-        
-        		// Ensure the sprite gets added to the scene
-        		add(spr);
-    		}
-		}
-		else
-		{
-   				add(gfGroup);
-    			add(dadGroup);
-    			add(boyfriendGroup);
-		}
+    for (key => spr in list)
+    {
+        if(!StageData.reservedNames.contains(key))
+        {
+            // Convert FlxSprite to ModchartSprite if needed
+            var modSpr:ModchartSprite = (spr is ModchartSprite) 
+                ? cast spr 
+                : new ModchartSprite().loadSpriteFrom(spr);
+
+            modchartSprites.set(key, modSpr);
+            add(modSpr);
+        }
+    }
+}
+else
+{
+    add(gfGroup);
+    add(dadGroup);
+    add(boyfriendGroup);
+}
 
 			#if LUA_ALLOWED
 			luaDebugGroup = new FlxTypedGroup<DebugLuaText>();
@@ -575,7 +579,7 @@ class PlayState extends MusicBeatState
 				}
 
 				if (!SONG.gfVersion.startsWith('gf'))
-					gf = new Character(0, 0, SONG.gfVersion, false, false, 'gf');
+					gf = new Character(0, 0, SONG.gfVersion, 'gf');
 				startCharacterPos(gf);
 				gf.scrollFactor.set(0.95, 0.95);
 				gfGroup.add(gf);

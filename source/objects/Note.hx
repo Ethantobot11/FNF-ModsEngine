@@ -87,7 +87,6 @@ class Note extends FlxSprite
 	public static var maniaKeys(default, set):Int = 4;
 	static function set_maniaKeys(v) {
 		maniaKeys = (maniaKeysList.contains(v) ? v : 4);
-		colArray = getColArrayFromKeys();
 		return v;
 	}
 

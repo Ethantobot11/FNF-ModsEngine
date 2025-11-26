@@ -161,7 +161,7 @@ class PlayState extends MusicBeatState
 
 	#if LUA_ALLOWED
 	public var modchartTweens:Map<String, FlxTween> = new Map<String, FlxTween>();
-	public var modchartSprites:Map<String, FlxSprite> = new Map<String, FlxSprite>();
+	public var modchartSprites:Map<String, ModchartSprite> = new Map<String, ModchartSprite>();
 	public var modchartTimers:Map<String, FlxTimer> = new Map<String, FlxTimer>();
 	public var modchartSounds:Map<String, FlxSound> = new Map<String, FlxSound>();
 	public var modchartTexts:Map<String, FlxText> = new Map<String, FlxText>();
@@ -490,35 +490,18 @@ class PlayState extends MusicBeatState
 				}
 
 			if(stageData.objects != null && stageData.objects.length > 0)
-{
-    var list:Map<String, FlxSprite> = StageData.addObjectsToState(
-        stageData.objects, 
-        !stageData.hide_girlfriend ? gfGroup : null, 
-        dadGroup, 
-        boyfriendGroup, 
-        this
-    );
-
-    for (key => spr in list)
-    {
-        if(!StageData.reservedNames.contains(key))
-        {
-            // Convert FlxSprite to ModchartSprite if needed
-            var modSpr:ModchartSprite = (spr is ModchartSprite) 
-                ? cast spr 
-                : new ModchartSprite().loadSpriteFrom(spr);
-
-            modchartSprites.set(key, modSpr);
-            add(modSpr);
-        }
-    }
-}
-else
-{
-    add(gfGroup);
-    add(dadGroup);
-    add(boyfriendGroup);
-}
+			{
+				var list:Map<String, ModchartSprite> = StageData.addObjectsToState(stageData.objects, !stageData.hide_girlfriend ? gfGroup : null, dadGroup, boyfriendGroup, this);
+				for (key => spr in list)
+					if(!StageData.reservedNames.contains(key))
+						modchartSprites.set(key, spr);
+			}
+			else
+			{
+				add(gfGroup);
+				add(dadGroup);
+				add(boyfriendGroup);
+			}
 
 			#if LUA_ALLOWED
 			luaDebugGroup = new FlxTypedGroup<DebugLuaText>();

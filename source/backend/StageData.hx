@@ -158,21 +158,21 @@ class StageData {
 					{
 						gf.ID = num; 
 						if (group != null) group.add(gf);
-						addedObjects.set('gf', gf);
+						addedObjects.set('gf', cast gf);
 					}
 				case 'dad', 'dadGroup':
 					if(dad != null)
 					{
 						dad.ID = num;
 						if (group != null) group.add(dad);
-						addedObjects.set('dad', dad);
+						addedObjects.set('dad', cast dad);
 					}
 				case 'boyfriend', 'boyfriendGroup':
 					if(boyfriend != null)
 					{
 						boyfriend.ID = num;
 						if (group != null) group.add(boyfriend);
-						addedObjects.set('boyfriend', boyfriend);
+						addedObjects.set('boyfriend', cast boyfriend);
 					}
 
 				case 'square', 'sprite', 'animatedSprite':

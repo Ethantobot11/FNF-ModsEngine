@@ -217,10 +217,5 @@ class Song
 						keys = songData.mania;
 				}
 			}
-
-		if (keys == null && songData.keyCount != null)
-			keys = songData.keyCount;
-
-		return Note.maniaKeys = keys ?? 4;
 	}
 }

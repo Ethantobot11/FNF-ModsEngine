@@ -81,6 +81,11 @@
       "version": "1.4.0"
     },
     {
+      "name": "json2object",
+      "type": "haxelib",
+      "version": "2.4.0"
+    },
+    {
       "name": "hxdiscord_rpc",
       "type": "haxelib",
       "version": null

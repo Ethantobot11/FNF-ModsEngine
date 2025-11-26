@@ -42,24 +42,9 @@
       "url": "https://github.com/AlafandyPorting/hxcpp"
     },
     {
-      "name": "json2object",
-      "type": "haxelib",
-      "version": "3.11.0"
-    },
-    {
       "name": "hxjsonast",
       "type": "haxelib",
       "version": "1.1.0"
-    },
-    {
-      "name": "tjson",
-      "type": "haxelib",
-      "version": "1.4.0"
-    },
-    {
-      "name": "json2object",
-      "type": "haxelib",
-      "version": "3.11.0"
     },
     {
       "name": "hxCodec",

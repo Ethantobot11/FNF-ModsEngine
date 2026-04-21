@@ -1,2 +1,4 @@
 .git/
 .haxelib/
+export/
+build/

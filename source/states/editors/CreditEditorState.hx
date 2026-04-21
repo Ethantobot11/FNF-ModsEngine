@@ -108,7 +108,7 @@ class CreditEditorState extends MusicBeatState
 		UI_box = new FlxUITabMenu(null, tabs, true);
 		UI_box.cameras = [camUI];
 		UI_box.getTabGroup().cameras = [camUI];
-		tab_group_credits.cameras = [camUI];
+		
 		UI_box.resize(270, 380);
 		UI_box.x = 940;
 		UI_box.y = 25;
@@ -281,6 +281,7 @@ class CreditEditorState extends MusicBeatState
 		});
 
 		var tab_group_credits = new FlxUI(null, UI_box);
+		tab_group_credits.cameras = [camUI];
 		tab_group_credits.name = "Credits";
 
 		tab_group_credits.add(titleInput);

@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
+<architecture name="armv7" />
+<architecture name="arm64" />
+<architecture name="x86_64" />
+<architecture name="x86" />
 	<!-- _________________________ Application Settings _________________________ -->
 
 	<app title="Friday Night Funkin': Mods Engine" file="ModsEngine" packageName="com.alialafandy.modsengine" package="com.alialafandy.modsengine" main="Main" version="0.2.8" company="AliAlafandy" />

@@ -36,7 +36,7 @@ import substates.Prompt;
 
 class CreditEditorState extends MusicBeatState
 {
-	var currentlySelected:Int = -1;
+	var currentlySelected:Int = 0;
 
 	private var grpOptions:FlxTypedGroup<Alphabet>;
 	private var iconArray:Array<AttachedSprite> = [];

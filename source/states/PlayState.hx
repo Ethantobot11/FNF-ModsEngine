@@ -38,15 +38,7 @@ import openfl.filters.ShaderFilter;
 #end
 
 #if VIDEOS_ALLOWED
-#if (hxCodec >= "3.0.0")
-import hxcodec.flixel.FlxVideo as VideoHandler;
-#elseif (hxCodec >= "2.6.1")
-import hxcodec.VideoHandler as VideoHandler;
-#elseif (hxCodec == "2.6.0")
-import VideoHandler;
-#else
-import vlc.MP4Handler as VideoHandler;
-#end
+import objects.VideoSprite;
 #end
 
 import objects.Note.EventNote;
@@ -934,55 +926,71 @@ class PlayState extends MusicBeatState
 		char.y += char.positionArray[1];
 	}
 
-	public function startVideo(name:String)
+	public var videoCutscene:VideoSprite = null;
+	public function startVideo(name:String, forMidSong:Bool = false, canSkip:Bool = true, loop:Bool = false, playOnLoad:Bool = true)
 	{
 		#if VIDEOS_ALLOWED
-		inCutscene = true;
+		inCutscene = !forMidSong;
+		canPause = forMidSong;
 
-		var filepath:String = Paths.video(name);
+		var foundFile:Bool = false;
+		var fileName:String = Paths.video(name);
+
 		#if sys
-		if(!FileSystem.exists(filepath))
+		if (FileSystem.exists(fileName))
 		#else
-		if(!OpenFlAssets.exists(filepath))
+		if (OpenFlAssets.exists(fileName))
 		#end
-		{
-			FlxG.log.warn('Couldnt find video file: ' + name);
-			startAndEnd();
-			return;
-		}
+		foundFile = true;
 
-		var video:VideoHandler = new VideoHandler();
-			#if (hxCodec >= "3.0.0")
-			// Recent versions
-			video.play(filepath);
-			video.onEndReached.add(function()
+		if (foundFile)
+		{
+			videoCutscene = new VideoSprite(fileName, forMidSong, canSkip, loop);
+			if(forMidSong) videoCutscene.videoSprite.bitmap.rate = playbackRate;
+
+			// Finish callback
+			if (!forMidSong)
 			{
-				video.dispose();
-				startAndEnd();
-				return;
-			}, true);
-			#else
-			// Older versions
-			video.playVideo(filepath);
-			video.finishCallback = function()
-			{
-				startAndEnd();
-				return;
+				function onVideoEnd()
+				{
+					if (!isDead && generatedMusic && PlayState.SONG.notes[Std.int(curStep / 16)] != null && !endingSong && !isCameraOnForcedPos)
+					{
+						moveCameraSection();
+						FlxG.camera.snapToTarget();
+					}
+					videoCutscene = null;
+					canPause = true;
+					inCutscene = false;
+					startAndEnd();
+				}
+				videoCutscene.finishCallback = onVideoEnd;
+				videoCutscene.onSkip = onVideoEnd;
 			}
-			#end
+			if (GameOverSubstate.instance != null && isDead) GameOverSubstate.instance.add(videoCutscene);
+			else add(videoCutscene);
+
+			if (playOnLoad)
+				videoCutscene.play();
+			return videoCutscene;
+		}
+		#if (LUA_ALLOWED || HSCRIPT_ALLOWED)
+		else addTextToDebug("Video not found: " + fileName, FlxColor.RED);
+		#else
+		else FlxG.log.error("Video not found: " + fileName);
+		#end
 		#else
 		FlxG.log.warn('Platform not supported!');
 		startAndEnd();
-		return;
 		#end
-	}
+		return null;
+	}	
 
 	function startAndEnd()
 	{
-		if(endingSong)
-			endSong();
-		else
-			startCountdown();
+	if(endingSong)
+		endSong();
+	else
+		startCountdown();
 	}
 
 	var dialogueCount:Int = 0;
@@ -1959,90 +1967,45 @@ class PlayState extends MusicBeatState
 		iconP2.x = healthBar.barCenter - (150 * iconP2.scale.x) / 2 - iconOffset * 2;
 	}
 
-	var iconsAnimations:Bool = true;
-	function set_health(value:Float):Float // You can alter how icon animations work here
-	{
-		if (!iconsAnimations || healthBar == null || !healthBar.enabled || healthBar.valueFunction == null)
+	switch (iconP1.animation.numFrames)
 		{
-			health = value;
-			return health;
+			case 3:
+				if (healthBar.percent < 20)
+					iconP1.animation.curAnim.curFrame = 1;
+				else if (healthBar.percent >80)
+					iconP1.animation.curAnim.curFrame = 2;
+				else
+					iconP1.animation.curAnim.curFrame = 0;
+			case 2:
+				if (healthBar.percent < 20)
+					iconP1.animation.curAnim.curFrame = 1;
+				else
+					iconP1.animation.curAnim.curFrame = 0;
+			case 1:
+				iconP1.animation.curAnim.curFrame = 0;
 		}
 
-		// update health bar
-		health = value;
-		var newPercent:Null<Float> = FlxMath.remapToRange(FlxMath.bound(healthBar.valueFunction(), healthBar.bounds.min, healthBar.bounds.max),
-														  healthBar.bounds.min, healthBar.bounds.max, 0, 100);
-		healthBar.percent = (newPercent != null ? newPercent : 0);
+		switch(iconP2.animation.numFrames)
 
-		/*inline function isAnimated(icon:HealthIcon):Bool
-			return icon != null && icon.animation != null && (icon.animation.exists("idle") || icon.animation.exists("winning") || icon.animation.exists("losing"));
-
-		if (iconP1 != null)
 		{
-			if (isAnimated(iconP1))
-			{
-				var anim:String = "idle";
-				if (healthBar.percent > 80 && iconP1.animation.exists("winning"))
-					anim = "winning";
-				else if (healthBar.percent < 20 && iconP1.animation.exists("losing"))
-					anim = "losing";
-
-				if (iconP1.animation.curAnim == null || iconP1.animation.curAnim.name != anim)
-					iconP1.animation.play(anim);
-			}
-			else if (iconP1.animation != null && iconP1.animation.curAnim != null)
-			{
-				var frames = iconP1.animation.curAnim.frames;
-				var numFrames = (frames != null) ? frames.length : 2;
-
-				if (numFrames >= 3)
-				{
-					if (healthBar.percent > 80)
-						iconP1.animation.curAnim.curFrame = 2;
-					else if (healthBar.percent < 20)
-						iconP1.animation.curAnim.curFrame = 1;
-					else
-						iconP1.animation.curAnim.curFrame = 0;
-				} else {
-					iconP1.animation.curAnim.curFrame = (healthBar.percent < 20) ? 0 : 1;
-				}
-			}
+			case 3:
+				if (healthBar.percent > 80)
+					iconP2.animation.curAnim.curFrame = 1;
+				else if (healthBar.percent < 20)
+					iconP2.animation.curAnim.curFrame = 2;
+				else 
+					iconP2.animation.curAnim.curFrame = 0;
+			case 2:
+				if (healthBar.percent > 80)
+					iconP2.animation.curAnim.curFrame = 1;
+				else 
+					iconP2.animation.curAnim.curFrame = 0;
+			case 1:
+				iconP2.animation.curAnim.curFrame = 0;
 		}
 
-		if (iconP2 != null)
-		{
-			if (isAnimated(iconP2))
-			{
-				var anim:String = "idle";
-				if (healthBar.percent > 80 && iconP2.animation.exists("losing"))
-					anim = "losing";
-				else if (healthBar.percent < 20 && iconP2.animation.exists("winning"))
-					anim = "winning";
-
-				if (iconP2.animation.curAnim == null || iconP2.animation.curAnim.name != anim)
-					iconP2.animation.play(anim);
-			}
-			else if (iconP2.animation != null && iconP2.animation.curAnim != null)
-			{
-				var frames = iconP2.animation.curAnim.frames;
-				var numFrames = (frames != null) ? frames.length : 2;
-
-				if (numFrames >= 3)
-				{
-					if (healthBar.percent > 80)
-						iconP2.animation.curAnim.curFrame = 1;
-					else if (healthBar.percent < 20)
-						iconP2.animation.curAnim.curFrame = 2;
-					else
-						iconP2.animation.curAnim.curFrame = 0;
-				} else {
-					iconP2.animation.curAnim.curFrame = (healthBar.percent > 80) ? 0 : 1;
-				}
-			}
-		}*/
-
-		iconP1.animation.curAnim.curFrame = (healthBar.percent < 20) ? 1 : 0; //If health is under 20%, change player icon to frame 1 (losing icon), otherwise, frame 0 (normal)
-		iconP2.animation.curAnim.curFrame = (healthBar.percent > 80) ? 1 : 0; //If health is over 80%, change opponent icon to frame 1 (losing icon), otherwise, frame 0 (normal)
+		/*iconP1.animation.curAnim.curFrame = (healthBar.percent < 20) ? 1 : 0; //If health is under 20%, change player icon to frame 1 (losing icon), otherwise, frame 0 (normal)
+		iconP2.animation.curAnim.curFrame = (healthBar.percent > 80) ? 1 : 0; //If health is over 80%, change opponent icon to frame 1 (losing icon), otherwise, frame 0 (normal)*/
 
 		return health;
 	}

@@ -8,9 +8,9 @@ import backend.StageData;
 
 import flixel.ui.FlxButton;
 
-import flixel.addons.ui.FlxUIRadioGroup;
-import flixel.addons.ui.FlxUICheckBox;
-import flixel.addons.ui.FlxUIEventHandler;
+import backend.ui.PsychUIRadioGroup as uiFlxUIRadioGroup;
+import backend.ui.PsychUICheckBox as FlxUICheckBox;
+import backend.ui.PsychUIEventHandler as FlxUIEventHandler;
 
 import substates.content.FileDialogHandler;
 

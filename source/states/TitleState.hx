@@ -25,14 +25,14 @@ import states.OutdatedState;
 import states.MainMenuState;
 
 #if VIDEOS_ALLOWED
-#if (hxCodec >= "3.0.0")
-import hxcodec.flixel.FlxVideo as VideoHandler;
+#if (hxvlc)
+import hxvlc.flixel.FlxVideo as VideoHandler;
 #elseif (hxCodec >= "2.6.1")
 import hxcodec.VideoHandler as VideoHandler;
 #elseif (hxCodec == "2.6.0")
 import VideoHandler;
 #else
-import vlc.MP4Handler as VideoHandler;
+import objects.VideoSprite as VideoHandler;
 #end
 #end
 

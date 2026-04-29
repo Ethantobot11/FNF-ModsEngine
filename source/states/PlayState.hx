@@ -1967,6 +1967,10 @@ class PlayState extends MusicBeatState
 		iconP2.x = healthBar.barCenter - (150 * iconP2.scale.x) / 2 - iconOffset * 2;
 	}
 
+	var iconsAnimations:Bool = true;
+	function set_health(value:Float):Float // You can alter how icon animations work here
+	{
+		if (!iconsAnimations || healthBar == null || !healthBar.enabled || healthBar.valueFunction == null)
 	switch (iconP1.animation.numFrames)
 		{
 			case 3:

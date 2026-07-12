@@ -37,6 +37,7 @@ jobs:
           haxe-version: ${{ env.HAXE_VERSION }}
 
       - name: Install VLC Libraries
+        if: inputs.name == 'Linux'
         run: |
           sudo apt update
           sudo apt install -y libvlc-dev libvlccore-dev
